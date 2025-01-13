@@ -5,7 +5,6 @@ import opengate as gate
 from scipy.spatial.transform import Rotation
 import opengate.contrib.spect.siemens_intevo as intevo
 from opengate.actors.digitizers import Digitizer
-import opengate.contrib.phantoms.nemaiec as gate_iec
 
 
 def add_digitizer_intevo_lu177(sim, name, crystal_name):
@@ -120,19 +119,17 @@ def add_intevo_two_heads(sim, name, colli_type, radius):
     return heads, crystals
 
 
-def rotate_gantry_helpers(
-    head, radius, start_angle_deg, step_angle_deg, nb_angle, initial_rotation=None
+def rotate_gantry(
+    head, radius, initial_rotation, start_angle_deg, step_angle_deg, nb_angle
 ):
     # compute the nb translation and rotation
     translations = []
     rotations = []
     current_angle_deg = start_angle_deg
-    if initial_rotation is None:
-        initial_rotation = Rotation.from_euler("X", 90, degrees=True)
     for r in range(nb_angle):
-        print(f'Angle {r} = {current_angle_deg}')
+        # print(f'Angle {r} = {current_angle_deg}')
         t, rot = gate.geometry.utility.get_transform_orbiting(
-            [0, radius, 0], "Z", current_angle_deg
+            [radius, 0, 0], "Z", current_angle_deg
         )
         rot = Rotation.from_matrix(rot)
         rot = rot * initial_rotation
@@ -140,7 +137,6 @@ def rotate_gantry_helpers(
         translations.append(t)
         rotations.append(rot)
         current_angle_deg += step_angle_deg
-    print(translations)
 
     # set the motion for the SPECT head
     head.add_dynamic_parametrisation(translation=translations, rotation=rotations)
@@ -195,7 +191,7 @@ def add_phantom_spatial_resolution(sim, name):
 
     # support polystyrene
     polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
-    polystyrene.size = [450 * mm, 50 * mm, 400 * mm]
+    polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
     polystyrene.translation = [
         0,
         cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
@@ -205,46 +201,6 @@ def add_phantom_spatial_resolution(sim, name):
     polystyrene.color = red
 
     return glass_tube
-
-def add_iec_phantom(sim, aa_volumes, name_supp):
-    # rotation 180 around X to be like in the iec 61217 coordinate system
-    mm = gate.g4_units.mm
-    iec_phantom = gate_iec.add_iec_phantom(sim)
-    iec_phantom.translation = [0 * mm, 0 * mm, 0 * mm]
-    iec_phantom.rotation = Rotation.from_euler("x", 0, degrees=True).as_matrix()
-
-    # add sources for all spheres
-    cm3 = gate.g4_units.cm3
-    Bq = gate.g4_units.Bq
-    BqmL = Bq / cm3
-    mm = gate.g4_units.mm
-    red = [1, 0.7, 0.7, 0.8]
-    a = 713 * BqmL
-    activity_Bq_mL = [10 * a, 10 * a, 10 * a, 10 * a, 10 * a, 10 * a]
-    sources = gate_iec.add_spheres_sources(sim, iec_phantom.name, "sources", "all", activity_Bq_mL, verbose=True)
-    for source in sources:
-        set_iec_sources(source, rad = "Tc99m")
-        gate.sources.base.set_source_rad_energy_spectrum(source, rad = "Tc99m")
-        if aa_volumes is not None:
-            source.direction.acceptance_angle.volumes = aa_volumes
-            source.direction.acceptance_angle.intersection_flag = True
-            source.direction.acceptance_angle.skip_policy = "SkipEvents"
-
-    # support polystyrene
-    polystyrene = sim.add_volume("Box", f"{name_supp}_plexiglas")
-    polystyrene.size = [470 * mm, 20 * mm, 400 * mm]
-    polystyrene.translation = [
-        iec_phantom.translation[0],
-        iec_phantom.translation[1] - 80 - polystyrene.size[1] / 2,
-        polystyrene.size[2] / 2 - 400 / 2,
-    ]
-    polystyrene.material = "G4_PLEXIGLASS"
-    polystyrene.color = red
-    return iec_phantom
-
-def set_iec_sources(source, rad = "Tc99m"):
-        source.particle = "gamma"
-        gate.sources.base.set_source_rad_energy_spectrum(source, rad)
 
 
 def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
@@ -283,7 +239,7 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     eb = digitizer.add_module("DigitizerBlurringActor", f"{name}_blur")
     eb.blur_attribute = "TotalEnergyDeposit"
     eb.blur_method = "InverseSquare"
-    eb.blur_resolution = 0.0965  # ???
+    eb.blur_resolution = 0.089  # ???
     eb.blur_reference_value = 140.57 * keV
 
     # spatial blurring
