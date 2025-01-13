@@ -161,46 +161,47 @@ def add_phantom_spatial_resolution(sim, name):
     gray = [0.5, 0.5, 0.5, 1]
 
     # source glass tube
-    glass_tube = sim.add_volume("Tubs", f"{name}")
-    glass_tube.rmin = 0 * mm
-    glass_tube.rmax = 0.75 * mm
-    glass_tube.dz = 70 * mm / 2.0
-    glass_tube.translation = [0, 0, 0]
-    # glass_tube.material = "G4_PLEXIGLASS"
-    glass_tube.material = "G4_Pyrex_Glass"
+    syringue = sim.add_volume("Tubs", f"{name}")
+    syringue.rmin = 0 * mm
+    syringue.rmax = 10 * mm
+    syringue.dz = 70 * mm / 2.0
+    syringue.translation = [3000 * mm, 0, 0]
+    syringue.material = "G4_PLEXIGLASS"
+    # syringue.material = "G4_Pyrex_Glass"
     # glass_tube.material = "G4_GLASS_LEAD"
     # glass_tube.material = "G4_GLASS_PLATE"
-    glass_tube.color = blue
+    syringue.color = blue
 
     # source container
     container = sim.add_volume("Tubs", f"{name}_source_container")
-    container.mother = glass_tube
+    container.mother = syringue
     container.rmin = 0
-    container.rmax = 0.5 * mm
-    container.dz = 70 * mm / 2.0 - 1 * mm
+    container.rmax = 0.8 * mm
+    container.dz = 1 * mm / 2.0 * mm
     container.material = "G4_AIR"
     container.color = red
+    container.translation = [0, 0, 70 * mm / 2.0 -1 * mm]
 
     # support cardboard
-    create_wood_material(sim)
-    cardboard = sim.add_volume("Box", f"{name}_cardboard")
-    cardboard.size = [245 * mm, 75 * mm, 125 * mm]
-    cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
-    cardboard.material = "WoodFibers"
-    cardboard.color = gray
+    # create_wood_material(sim)
+    # cardboard = sim.add_volume("Box", f"{name}_cardboard")
+    # cardboard.size = [245 * mm, 75 * mm, 125 * mm]
+    # cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
+    # cardboard.material = "WoodFibers"
+    # cardboard.color = gray
 
     # support polystyrene
-    polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
-    polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
-    polystyrene.translation = [
-        0,
-        cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
-        polystyrene.size[2] / 2 - cardboard.size[2] / 2,
-    ]
-    polystyrene.material = "G4_POLYSTYRENE"
-    polystyrene.color = red
+    # polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
+    # polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
+    # polystyrene.translation = [
+    #     0,
+    #     cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
+    #     polystyrene.size[2] / 2 - cardboard.size[2] / 2,
+    # ]
+    # polystyrene.material = "G4_POLYSTYRENE"
+    # polystyrene.color = red
 
-    return glass_tube
+    return syringue
 
 
 def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
