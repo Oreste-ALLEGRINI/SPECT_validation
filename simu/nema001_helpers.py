@@ -14,7 +14,7 @@ def set_nema001_simulation(sim, simu_name, distance):
     sim.visu_type = "vrml_file_only"
     sim.visu_filename = "test.wrl"
     sim.random_seed = "auto"
-    sim.number_of_threads = 8
+    #sim.number_of_threads = 8
     sim.progress_bar = True
     sim.output_dir = Path("output_iec") / simu_name
 
@@ -25,6 +25,7 @@ def set_nema001_simulation(sim, simu_name, distance):
     cm = gate.g4_units.cm
     m = gate.g4_units.m
     Bq = gate.g4_units.Bq
+    keV = gate.g4_units.keV
 
     # acquisition param
     time = 5 * min
