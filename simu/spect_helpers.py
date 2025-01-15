@@ -165,7 +165,7 @@ def add_phantom_spatial_resolution(sim, name):
     syringue.rmin = 0 * mm
     syringue.rmax = 10 * mm
     syringue.dz = 70 * mm / 2.0
-    syringue.translation = [3000 * mm, 0, 0]
+    syringue.translation = [0, 0, 0]
     syringue.material = "G4_PLEXIGLASS"
     # syringue.material = "G4_Pyrex_Glass"
     # glass_tube.material = "G4_GLASS_LEAD"
@@ -180,7 +180,7 @@ def add_phantom_spatial_resolution(sim, name):
     container.dz = 1 * mm / 2.0 * mm
     container.material = "G4_AIR"
     container.color = red
-    container.translation = [0, 0, 70 * mm / 2.0 -1 * mm]
+    container.translation = [0, 0, 0]
 
     # support cardboard
     # create_wood_material(sim)

@@ -11,7 +11,8 @@ def set_nema001_simulation(sim, simu_name):
 
     # main options
     # sim.visu = True
-    sim.visu_type = "qt"
+    sim.visu_type = "vrml_file_only"
+    sim.visu_filename = "energy_resolution.wrl"
     sim.random_seed = "auto"
     sim.number_of_threads = 8
     sim.progress_bar = True
