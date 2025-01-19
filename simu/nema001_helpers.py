@@ -17,6 +17,8 @@ def set_nema001_simulation(sim, simu_name):
     sim.number_of_threads = 8
     sim.progress_bar = True
     sim.output_dir = Path("energy_resolution") / simu_name
+    #sim.verbose_level = "DEBUG"
+    #sim.visu_verbose = True
 
     # units
     sec = gate.g4_units.s
