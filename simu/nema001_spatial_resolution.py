@@ -48,7 +48,7 @@ def go(source_orientation, fwhm_blur, distance):
         glass_tube.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
 
     # camera distance
-    nm670.rotate_gantry(head, radius=distance, start_angle_deg=0)
+    nm670.rotate_gantry(head, radius=distance, start_angle_deg=270)
     print(head.translation)
 
     # digitizer

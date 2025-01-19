@@ -36,7 +36,7 @@ def set_nema001_simulation(sim, simu_name):
 
     # world
     world = sim.world
-    world.size = [2 * m, 2 * m, 2 * m]
+    world.size = [10 * m, 10 * m, 10 * m]
     world.material = "G4_AIR"
 
     # spect head
@@ -52,7 +52,7 @@ def set_nema001_simulation(sim, simu_name):
 
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
-    table.translation = [0, 20.5 * cm, 0]
+    table.translation = [0, 20.5 * cm, -130 * cm]
     glass_tube = add_phantom_spatial_resolution(sim, "phantom")
 
     # source with AA to speedup
