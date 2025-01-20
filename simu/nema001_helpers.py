@@ -32,8 +32,8 @@ def set_nema001_simulation(sim, simu_name):
     time = 5 * min
     activity = 3e7 * Bq / sim.number_of_threads
     if sim.visu:
-        time = 1 * sec
-        activity = 100 * Bq
+        time = 10 * sec
+        activity = 1000 * Bq
         sim.number_of_threads = 1
 
     # world
@@ -45,7 +45,7 @@ def set_nema001_simulation(sim, simu_name):
     head, colli, crystal = nm670.add_spect_head(
         sim,
         "spect",
-        collimator_type="False",
+        collimator_type=None,
         rotation_deg=15,
         crystal_size="5/8",
         debug=sim.visu,
@@ -77,15 +77,26 @@ def set_nema001_simulation(sim, simu_name):
     print(f"Projection output: {proj.get_output_path()}")
     digit_blur = digit.find_module("digitizer_sp_blur")
     
-    # add dose actor
-    dose = sim.add_actor("DoseActor", "dose")
-    dose.output_filename = "test008-edep.mhd"
-    dose.attached_to = "spect_crystal"
-    dose.size = [99, 99, 99]
-    dose.spacing = [2 * mm, 2 * mm, 2 * mm]
-    dose.translation = [2 * mm, 3 * mm, -2 * mm]
-    dose.dose_uncertainty.active = True
-    dose.hit_type = "random"
+    # add PhaseSpace actor
+    phsp = sim.add_actor("PhaseSpaceActor", "PhaseSpace")
+    phsp.attached_to = "spect_crystal"
+    phsp.attributes = [
+    "KineticEnergy",
+    "Weight",
+    "PostPosition",
+    "PrePosition",
+    "ParticleName",
+    "PreDirection",
+    "PostDirection",
+    "TimeFromBeginOfEvent",
+    "GlobalTime",
+    "LocalTime",
+    "EventPosition",
+    ]
+    phsp.output_filename = "test019_hits.root"
+    f = sim.add_filter("ParticleFilter", "f")
+    f.particle = "gamma"
+    phsp.filters.append(f)
 
     # add stat actor
     stats = sim.add_actor("SimulationStatisticsActor", "stats")

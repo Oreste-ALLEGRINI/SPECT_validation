@@ -41,11 +41,11 @@ def go(source_orientation, fwhm_blur, distance):
     print("final radius =", distance)
 
     # create simulation
-    head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name)
+    head, syringue, digit_blur = set_nema001_simulation(sim, simu_name)
 
     # orientation of the linear source
     if source_orientation == "X":
-        glass_tube.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
+        syringue.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
 
     # camera distance
     nm670.rotate_gantry(head, radius=distance, start_angle_deg=270)
