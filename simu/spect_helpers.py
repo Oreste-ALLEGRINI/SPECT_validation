@@ -242,6 +242,9 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     eb.blur_method = "InverseSquare"
     eb.blur_resolution = 0.089  # ???
     eb.blur_reference_value = 140.57 * keV
+    eb.spacing = [1.1049 * mm, 1.1049 * mm]
+    eb.size = [512, 512]
+    eb.write_to_disk = True
 
     # spatial blurring
     sb = digitizer.add_module("DigitizerSpatialBlurringActor", f"{name}_sp_blur")

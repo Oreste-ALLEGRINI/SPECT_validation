@@ -45,7 +45,7 @@ def set_nema001_simulation(sim, simu_name):
     head, colli, crystal = nm670.add_spect_head(
         sim,
         "spect",
-        collimator_type=None,
+        collimator_type="lehr",
         rotation_deg=15,
         crystal_size="5/8",
         debug=sim.visu,
@@ -76,21 +76,16 @@ def set_nema001_simulation(sim, simu_name):
     print(f"Projection spacing: {proj.spacing} mm")
     print(f"Projection output: {proj.get_output_path()}")
     digit_blur = digit.find_module("digitizer_sp_blur")
+    ener_blur = digit.find_module("digitizer_blur")
+    ener_blur.output_filename = f"{simu_name}_energy.root"
     
     # add PhaseSpace actor
     phsp = sim.add_actor("PhaseSpaceActor", "PhaseSpace")
     phsp.attached_to = "spect_crystal"
     phsp.attributes = [
     "KineticEnergy",
+    "TotalEnergyDeposit",
     "Weight",
-    "PostPosition",
-    "PrePosition",
-    "ParticleName",
-    "PreDirection",
-    "PostDirection",
-    "TimeFromBeginOfEvent",
-    "GlobalTime",
-    "LocalTime",
     "EventPosition",
     ]
     phsp.output_filename = "test019_hits.root"
