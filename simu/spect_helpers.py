@@ -202,6 +202,74 @@ def add_phantom_spatial_resolution(sim, name):
 
     return glass_tube
 
+def add_phantom_spatial_resolution_2sources(sim, name):
+    # def
+    mm = gate.g4_units.mm
+    red = [1, 0.7, 0.7, 0.8]
+    blue = [0.5, 0.5, 1, 0.8]
+    gray = [0.5, 0.5, 0.5, 1]
+
+    # source glass tube
+    glass_tube = sim.add_volume("Tubs", f"{name}")
+    glass_tube.rmin = 0 * mm
+    glass_tube.rmax = 0.75 * mm
+    glass_tube.dz = 70 * mm / 2.0
+    glass_tube.translation = [0, 0, 0]
+    # glass_tube.material = "G4_PLEXIGLASS"
+    glass_tube.material = "G4_Pyrex_Glass"
+    # glass_tube.material = "G4_GLASS_LEAD"
+    # glass_tube.material = "G4_GLASS_PLATE"
+    glass_tube.color = blue
+
+    # source container
+    container = sim.add_volume("Tubs", f"{name}_source_container")
+    container.mother = glass_tube
+    container.rmin = 0
+    container.rmax = 0.5 * mm
+    container.dz = 70 * mm / 2.0 - 1 * mm
+    container.material = "G4_AIR"
+    container.color = red
+
+    glass_tube2 = sim.add_volume("Tubs", f"{name}_2")
+    glass_tube2.rmin = 0 * mm
+    glass_tube2.rmax = 0.75 * mm
+    glass_tube2.dz = 70 * mm / 2.0
+    glass_tube2.translation = [100 * mm, 0, 0]
+    # glass_tube.material = "G4_PLEXIGLASS"
+    glass_tube2.material = "G4_Pyrex_Glass"
+    # glass_tube.material = "G4_GLASS_LEAD"
+    # glass_tube.material = "G4_GLASS_PLATE"
+    glass_tube2.color = blue
+
+    # source2 container
+    container2 = sim.add_volume("Tubs", f"{name}_source2_container")
+    container2.mother = glass_tube2
+    container2.rmin = 0
+    container2.rmax = 0.5 * mm
+    container2.dz = 70 * mm / 2.0 - 1 * mm
+    container2.material = "G4_AIR"
+    container2.color = red
+
+    # support cardboard
+    create_wood_material(sim)
+    cardboard = sim.add_volume("Box", f"{name}_cardboard")
+    cardboard.size = [245 * mm, 75 * mm, 125 * mm]
+    cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
+    cardboard.material = "WoodFibers"
+    cardboard.color = gray
+
+    # support polystyrene
+    polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
+    polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
+    polystyrene.translation = [
+        0,
+        cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
+        polystyrene.size[2] / 2 - cardboard.size[2] / 2,
+    ]
+    polystyrene.material = "G4_POLYSTYRENE"
+    polystyrene.color = red
+
+    return glass_tube, glass_tube2
 
 def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
     source = sim.add_source("GenericSource", name)
@@ -218,6 +286,34 @@ def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=
         source.direction.acceptance_angle.skip_policy = "SkipEvents"
     return source
 
+def add_2sources_spatial_resolution(sim, name, name2, container, container2, rad="lu177", aa_volumes=None):
+    source = sim.add_source("GenericSource", name)
+    source.attached_to = container.name
+    source.particle = "gamma"
+    source.position.type = "cylinder"
+    source.position.radius = container.rmax
+    source.position.dz = container.dz
+    source.direction.type = "iso"
+    gate.sources.base.set_source_rad_energy_spectrum(source, rad)
+    if aa_volumes is not None:
+        source.direction.acceptance_angle.volumes = aa_volumes
+        source.direction.acceptance_angle.intersection_flag = True
+        source.direction.acceptance_angle.skip_policy = "SkipEvents"
+    
+    source2 = sim.add_source("GenericSource", name2)
+    source2.attached_to = container2.name
+    source2.particle = "gamma"
+    source2.position.type = "cylinder"
+    source2.position.radius = container2.rmax
+    source2.position.dz = container2.dz
+    source2.direction.type = "iso"
+    gate.sources.base.set_source_rad_energy_spectrum(source2, rad)
+    if aa_volumes is not None:
+        source2.direction.acceptance_angle.volumes = aa_volumes
+        source2.direction.acceptance_angle.intersection_flag = True
+        source2.direction.acceptance_angle.skip_policy = "SkipEvents"
+
+    return source, source2
 
 def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     # create main chain

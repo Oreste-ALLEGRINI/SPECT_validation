@@ -3,7 +3,7 @@
 
 import opengate.contrib.spect.ge_discovery_nm670 as nm670
 from opengate import g4_units
-from nema001_helpers import set_nema001_simulation
+from nema001_helpers import set_nema001_simulation, set_nema001_simulation_2sources
 from opengate.contrib.spect.siemens_intevo import (
     compute_plane_position_and_distance_to_crystal,
 )
@@ -15,11 +15,11 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option(
-    "--source_orientation", "-s", default="Y", help="Orientation of the source X or Y"
+    "--source_orientation", "-s", default="X", help="Orientation of the source X or Y"
 )
-@click.option("--fwhm_blur", default=6.3, help="FWHM spatial blur in digitizer")
+@click.option("--fwhm_blur", default=3.8, help="FWHM spatial blur in digitizer")
 @click.option(
-    "--distance", "-d", default=10 * g4_units.cm, help="Distance source-detector in mm"
+    "--distance", "-d", default=2 * g4_units.cm, help="Distance source-detector in mm"
 )
 def go(source_orientation, fwhm_blur, distance):
 
@@ -42,10 +42,17 @@ def go(source_orientation, fwhm_blur, distance):
 
     # create simulation
     head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name)
+    #head, glass_tube, glass_tube2, digit_blur = set_nema001_simulation_2sources(sim, simu_name)
 
     # orientation of the linear source
+    # Mode 1 source
     if source_orientation == "X":
         glass_tube.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
+    # Mode 2 sources
+    #if source_orientation == "X":
+    #    glass_tube.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
+    #    glass_tube2.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
+    #    glass_tube2.translation = [ 0, 0, -100 * g4_units.mm]
 
     # camera distance
     nm670.rotate_gantry(head, radius=distance, start_angle_deg=0)
