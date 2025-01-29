@@ -17,7 +17,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.option(
     "--source_orientation", "-s", default="Y", help="Orientation of the source X or Y"
 )
-@click.option("--fwhm_blur", default=3.8, help="FWHM spatial blur in digitizer")
+@click.option("--fwhm_blur", default=4.6, help="FWHM spatial blur in digitizer")
 @click.option(
     "--distance", "-d", default=15 * g4_units.cm, help="Distance source-detector in mm"
 )

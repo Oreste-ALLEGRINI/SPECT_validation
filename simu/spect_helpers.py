@@ -231,14 +231,14 @@ def add_iec_phantom(sim, aa_volumes, name_supp):
             source.direction.acceptance_angle.skip_policy = "SkipEvents"
 
     # support polystyrene
-    polystyrene = sim.add_volume("Box", f"{name_supp}_plexiglas")
+    polystyrene = sim.add_volume("Box", f"{name_supp}_polystyrene")
     polystyrene.size = [470 * mm, 20 * mm, 400 * mm]
     polystyrene.translation = [
         iec_phantom.translation[0],
         iec_phantom.translation[1] - 80 - polystyrene.size[1] / 2,
         polystyrene.size[2] / 2 - 400 / 2,
     ]
-    polystyrene.material = "G4_PLEXIGLASS"
+    polystyrene.material = "G4_POLYSTYRENE"
     polystyrene.color = red
     return iec_phantom
 
