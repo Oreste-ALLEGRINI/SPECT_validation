@@ -52,7 +52,7 @@ def set_nema001_simulation(sim, simu_name):
 
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
-    table.translation = [0, 20.5 * cm, 0]
+    table.translation = [0, 27.5 * cm, 0]
     petri_box = add_phantom_sensitivity(sim, "phantom")
 
     # source with AA to speedup

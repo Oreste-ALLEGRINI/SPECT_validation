@@ -159,6 +159,7 @@ def add_phantom_sensitivity(sim, name):
     red = [1, 0.7, 0.7, 0.8]
     blue = [0.5, 0.5, 1, 0.8]
     gray = [0.5, 0.5, 0.5, 1]
+    green = [0, 1, 0, 1]
 
     # source glass tube
     petri_box = sim.add_volume("Tubs", f"{name}")
@@ -170,35 +171,40 @@ def add_phantom_sensitivity(sim, name):
     # petri_box.material = "G4_Pyrex_Glass"
     # glass_tube.material = "G4_GLASS_LEAD"
     # glass_tube.material = "G4_GLASS_PLATE"
+    petri_box.rotation = Rotation.from_euler("X", 90, degrees=True).as_matrix()
     petri_box.color = blue
+
+    petri_box_inside = sim.add_volume("Tubs", f"{name}_inside")
+    petri_box_inside.mother = petri_box
+    petri_box_inside.rmin = 0 * mm
+    petri_box_inside.rmax = 84 * mm
+    petri_box_inside.dz = 13 * mm / 2.0
+    petri_box_inside.translation = [0, 0, 0]
+    petri_box_inside.material = "G4_AIR"
+    # petri_box.material = "G4_Pyrex_Glass"
+    # glass_tube.material = "G4_GLASS_LEAD"
+    # glass_tube.material = "G4_GLASS_PLATE"
+    petri_box_inside.color = green
 
     # source container
     container = sim.add_volume("Tubs", f"{name}_source_container")
-    container.mother = petri_box
+    container.mother = petri_box_inside
     container.rmin = 0
     container.rmax = 84 * mm
-    container.dz = 3 * mm / 2.0 - 1 * mm
-    container.material = "G4_AIR"
+    container.dz = 3 * mm / 2.0
+    container.material = "G4_WATER"
     container.color = red
-    container.translation = [0, 0, -6 * mm]
-
-    # support cardboard
-    #create_wood_material(sim)
-    #cardboard = sim.add_volume("Box", f"{name}_cardboard")
-    #cardboard.size = [245 * mm, 75 * mm, 125 * mm]
-    #cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
-    #cardboard.material = "WoodFibers"
-    #cardboard.color = gray
+    container.translation = [0, 0, 5 * mm]
 
     # support polystyrene
-    #polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
-    #polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
-    #polystyrene.translation = [
-    #    petri_box.translation[0], petri_box.translation[1] -20 - polystyrene.size[1],
-    #    petri_box.translation[2],
-    #]
-    #polystyrene.material = "G4_POLYSTYRENE"
-    #polystyrene.color = red
+    polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
+    polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
+    polystyrene.translation = [
+        petri_box.translation[0], petri_box.translation[1] - 7.5 - polystyrene.size[1] / 2,
+        petri_box.translation[2],
+    ]
+    polystyrene.material = "G4_POLYSTYRENE"
+    polystyrene.color = red
 
     return petri_box
 
