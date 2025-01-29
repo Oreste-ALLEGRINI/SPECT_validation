@@ -3,7 +3,7 @@
 
 import opengate.contrib.spect.ge_discovery_nm670 as nm670
 from opengate import g4_units
-from nema001_helpers import set_nema001_simulation, set_nema001_simulation_2sources
+from nema001_helpers import set_nema001_simulation
 from opengate.contrib.spect.siemens_intevo import (
     compute_plane_position_and_distance_to_crystal,
 )
@@ -42,17 +42,10 @@ def go(source_orientation, fwhm_blur, distance):
 
     # create simulation
     head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name)
-    #head, glass_tube, glass_tube2, digit_blur = set_nema001_simulation_2sources(sim, simu_name)
 
     # orientation of the linear source
-    # Mode 1 source
     if source_orientation == "X":
         glass_tube.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
-    # Mode 2 sources
-    #if source_orientation == "X":
-    #    glass_tube.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
-    #    glass_tube2.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
-    #    glass_tube2.translation = [ 0, 0, -100 * g4_units.mm]
 
     # camera distance
     nm670.rotate_gantry(head, radius=distance, start_angle_deg=0)
