@@ -11,11 +11,12 @@ def set_nema001_simulation(sim, simu_name):
 
     # main options
     # sim.visu = True
-    sim.visu_type = "qt"
+    sim.visu_type = "vrml_file_only"
+    sim.visu_filename = "test.wrl"
     sim.random_seed = "auto"
     sim.number_of_threads = 8
     sim.progress_bar = True
-    sim.output_dir = Path("sensitvity") / simu_name
+    sim.output_dir = Path("sensitivity") / simu_name
 
     # units
     sec = gate.g4_units.s

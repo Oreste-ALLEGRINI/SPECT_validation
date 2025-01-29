@@ -177,9 +177,10 @@ def add_phantom_sensitivity(sim, name):
     container.mother = petri_box
     container.rmin = 0
     container.rmax = 84 * mm
-    container.dz = 15 * mm / 2.0 - 1 * mm
+    container.dz = 3 * mm / 2.0 - 1 * mm
     container.material = "G4_AIR"
     container.color = red
+    container.translation = [0, 0, -6 * mm]
 
     # support cardboard
     #create_wood_material(sim)
