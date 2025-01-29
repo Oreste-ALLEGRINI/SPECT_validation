@@ -16,7 +16,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option("--fwhm_blur", default=4.6, help="FWHM spatial blur in digitizer")
 @click.option(
-    "--distance", "-d", default=2 * g4_units.cm, help="Distance source-detector in mm"
+    "--distance", "-d", default=10 * g4_units.cm, help="Distance source-detector in mm"
 )
 def go(fwhm_blur, distance):
 

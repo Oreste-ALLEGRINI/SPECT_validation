@@ -52,12 +52,12 @@ def set_nema001_simulation(sim, simu_name):
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
     table.translation = [0, 20.5 * cm, 0]
-    petri_box = add_phantom_spatial_resolution(sim, "phantom")
+    petri_box = add_phantom_sensitivity(sim, "phantom")
 
     # source with AA to speedup
     # setup for 1 source
     container = sim.volume_manager.get_volume(f"phantom_source_container")
-    src = add_source_spatial_resolution(sim, "source", container, "Tc99m", [head.name])
+    src = add_source_sensitivity(sim, "source", container, "Tc99m", [head.name])
     src.activity = activity
 
     # physics

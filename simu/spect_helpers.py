@@ -153,7 +153,7 @@ def create_wood_material(sim):
     )
 
 
-def add_phantom_spatial_resolution(sim, name):
+def add_phantom_sensitivity(sim, name):
     # def
     mm = gate.g4_units.mm
     red = [1, 0.7, 0.7, 0.8]
@@ -177,7 +177,7 @@ def add_phantom_spatial_resolution(sim, name):
     container.mother = petri_box
     container.rmin = 0
     container.rmax = 84 * mm
-    container.dz = 15 * mm / 2.0 - 2 * mm
+    container.dz = 15 * mm / 2.0 - 1 * mm
     container.material = "G4_AIR"
     container.color = red
 
@@ -190,25 +190,24 @@ def add_phantom_spatial_resolution(sim, name):
     #cardboard.color = gray
 
     # support polystyrene
-    polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
-    polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
-    polystyrene.translation = [
-        0, -50 * mm,
-        0,
-    ]
-    polystyrene.material = "G4_POLYSTYRENE"
-    polystyrene.color = red
+    #polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
+    #polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
+    #polystyrene.translation = [
+    #    petri_box.translation[0], petri_box.translation[1] -20 - polystyrene.size[1],
+    #    petri_box.translation[2],
+    #]
+    #polystyrene.material = "G4_POLYSTYRENE"
+    #polystyrene.color = red
 
     return petri_box
 
-def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
-    mm = gate.g4_units.mm
+def add_source_sensitivity(sim, name, container, rad="lu177", aa_volumes=None):
     source = sim.add_source("GenericSource", name)
     source.attached_to = container.name
     source.particle = "gamma"
     source.position.type = "cylinder"
     source.position.radius = container.rmax
-    source.position.dz = container.dz - 12 * mm
+    source.position.dz = container.dz
     source.direction.type = "iso"
     gate.sources.base.set_source_rad_energy_spectrum(source, rad)
     if aa_volumes is not None:
