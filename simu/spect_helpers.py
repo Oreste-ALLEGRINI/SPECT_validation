@@ -161,7 +161,7 @@ def add_phantom_spatial_resolution(sim, name):
     gray = [0.5, 0.5, 0.5, 1]
 
     # source glass tube
-    petri_box = sim.add_volume("Petri_Box", f"{name}")
+    petri_box = sim.add_volume("Tubs", f"{name}")
     petri_box.rmin = 0 * mm
     petri_box.rmax = 86 * mm
     petri_box.dz = 15 * mm / 2.0
@@ -173,7 +173,7 @@ def add_phantom_spatial_resolution(sim, name):
     petri_box.color = blue
 
     # source container
-    container = sim.add_volume("Petri_Box_inside", f"{name}_source_container")
+    container = sim.add_volume("Tubs", f"{name}_source_container")
     container.mother = petri_box
     container.rmin = 0
     container.rmax = 84 * mm
@@ -193,8 +193,8 @@ def add_phantom_spatial_resolution(sim, name):
     polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
     polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
     polystyrene.translation = [
-        0, polystyrene.size[1] / 2,
-        polystyrene.size[2] / 2,
+        0, -50 * mm,
+        0,
     ]
     polystyrene.material = "G4_POLYSTYRENE"
     polystyrene.color = red
@@ -202,12 +202,13 @@ def add_phantom_spatial_resolution(sim, name):
     return petri_box
 
 def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
+    mm = gate.g4_units.mm
     source = sim.add_source("GenericSource", name)
     source.attached_to = container.name
     source.particle = "gamma"
     source.position.type = "cylinder"
     source.position.radius = container.rmax
-    source.position.dz = container.dz
+    source.position.dz = container.dz - 12 * mm
     source.direction.type = "iso"
     gate.sources.base.set_source_rad_energy_spectrum(source, rad)
     if aa_volumes is not None:

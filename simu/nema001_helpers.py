@@ -15,7 +15,7 @@ def set_nema001_simulation(sim, simu_name):
     sim.random_seed = "auto"
     sim.number_of_threads = 8
     sim.progress_bar = True
-    sim.output_dir = Path("output_t2") / simu_name
+    sim.output_dir = Path("sensitvity") / simu_name
 
     # units
     sec = gate.g4_units.s
@@ -52,7 +52,7 @@ def set_nema001_simulation(sim, simu_name):
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
     table.translation = [0, 20.5 * cm, 0]
-    glass_tube = add_phantom_spatial_resolution(sim, "phantom")
+    petri_box = add_phantom_spatial_resolution(sim, "phantom")
 
     # source with AA to speedup
     # setup for 1 source
@@ -83,4 +83,4 @@ def set_nema001_simulation(sim, simu_name):
     # timing
     sim.run_timing_intervals = [[0, time]]
 
-    return head, glass_tube, digit_blur
+    return head, petri_box, digit_blur

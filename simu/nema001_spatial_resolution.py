@@ -14,23 +14,20 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
-@click.option(
-    "--source_orientation", "-s", default="X", help="Orientation of the source X or Y"
-)
-@click.option("--fwhm_blur", default=3.8, help="FWHM spatial blur in digitizer")
+@click.option("--fwhm_blur", default=4.6, help="FWHM spatial blur in digitizer")
 @click.option(
     "--distance", "-d", default=2 * g4_units.cm, help="Distance source-detector in mm"
 )
-def go(source_orientation, fwhm_blur, distance):
+def go(fwhm_blur, distance):
 
     # folders
-    simu_name = f"nema001_{source_orientation}_blur_{fwhm_blur:.2f}_d_{distance:.2f}"
+    simu_name = f"nema001_sensitivity_blur_{fwhm_blur:.2f}_d_{distance:.2f}"
 
     # create the simulation
     sim = gate.Simulation()
 
     # main options
-    # sim.visu = True
+    sim.visu = True
 
     pos, crystal_distance, psd = compute_plane_position_and_distance_to_crystal("lehr")
     print("User distance =", distance)
@@ -41,11 +38,7 @@ def go(source_orientation, fwhm_blur, distance):
     print("final radius =", distance)
 
     # create simulation
-    head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name)
-
-    # orientation of the linear source
-    if source_orientation == "X":
-        glass_tube.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
+    head, petri_box, digit_blur = set_nema001_simulation(sim, simu_name)
 
     # camera distance
     nm670.rotate_gantry(head, radius=distance, start_angle_deg=0)
