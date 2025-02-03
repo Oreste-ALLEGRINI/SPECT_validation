@@ -14,7 +14,7 @@ def set_nema001_simulation(sim, simu_name):
     sim.visu_type = "vrml_file_only"
     sim.visu_filename = "energy_resolution.wrl"
     sim.random_seed = "auto"
-    sim.number_of_threads = 8
+    sim.number_of_threads = 32
     sim.progress_bar = True
     sim.output_dir = Path("energy_resolution") / simu_name
     #sim.verbose_level = "DEBUG"
@@ -30,10 +30,10 @@ def set_nema001_simulation(sim, simu_name):
 
     # acquisition param
     time = 5 * min
-    activity = 3e7 * Bq / sim.number_of_threads
+    activity = 3e6 * Bq / sim.number_of_threads
     if sim.visu:
         time = 10 * sec
-        activity = 1000 * Bq
+        activity = 100 * Bq
         sim.number_of_threads = 1
 
     # world

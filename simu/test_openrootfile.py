@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import csv
 
-path = "/media/DATA/NEMA_SPECT/Gate_module/spect_validation_oreste/simu/energy_resolution/nema001_Y_blur_6.30_d_100.00/"
-myFile = root.open(path+"nema001_Y_blur_6.30_d_100.00_energy.root")
+path = "/media/DATA/NEMA_SPECT/Gate_module/spect_validation_oreste/simu/energy_resolution/nema001_Hits_blur_4.60_d_100.00Al0.13/"
+myFile = root.open(path+"nema001_Y_blur_4.60_d_100.00_energy.root")
 
 # Accéder au TTree (remplacez "nom_du_ttree" par le nom du TTree dans le fichier)
 tree = myFile["digitizer_blur;1"]

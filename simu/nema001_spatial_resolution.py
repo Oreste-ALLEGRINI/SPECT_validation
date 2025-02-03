@@ -17,7 +17,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.option(
     "--source_orientation", "-s", default="Y", help="Orientation of the source X or Y"
 )
-@click.option("--fwhm_blur", default=6.3, help="FWHM spatial blur in digitizer")
+@click.option("--fwhm_blur", default=4.6, help="FWHM spatial blur in digitizer")
 @click.option(
     "--distance", "-d", default=10 * g4_units.cm, help="Distance source-detector in mm"
 )
@@ -30,7 +30,7 @@ def go(source_orientation, fwhm_blur, distance):
     sim = gate.Simulation()
 
     # main options
-    sim.visu = True
+    # sim.visu = True
 
     pos, crystal_distance, psd = compute_plane_position_and_distance_to_crystal("lehr")
     print("User distance =", distance)

@@ -165,7 +165,7 @@ def add_phantom_spatial_resolution(sim, name):
     syringue.rmin = 0 * mm
     syringue.rmax = 10 * mm
     syringue.dz = 70 * mm / 2.0
-    syringue.translation = [-3000 * mm, 0, -30 * mm]
+    syringue.translation = [-2700 * mm, 0, -30 * mm]
     syringue.material = "G4_PLEXIGLASS"
     # syringue.material = "G4_Pyrex_Glass"
     # glass_tube.material = "G4_GLASS_LEAD"
@@ -184,11 +184,11 @@ def add_phantom_spatial_resolution(sim, name):
 
     # support cardboard
     # create_wood_material(sim)
-    # cardboard = sim.add_volume("Box", f"{name}_cardboard")
-    # cardboard.size = [245 * mm, 75 * mm, 125 * mm]
-    # cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
-    # cardboard.material = "WoodFibers"
-    # cardboard.color = gray
+    cardboard = sim.add_volume("Box", f"{name}_cardboard")
+    cardboard.size = [2000 * mm, 2000 * mm, 1000 * mm]
+    cardboard.translation = [0, 0, 1000 * mm]
+    cardboard.material = "G4_WATER"
+    cardboard.color = blue
 
     # support polystyrene
     # polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
@@ -213,10 +213,10 @@ def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=
     source.position.dz = container.dz
     source.direction.type = "iso"
     gate.sources.base.set_source_rad_energy_spectrum(source, rad)
-    if aa_volumes is not None:
-        source.direction.acceptance_angle.volumes = aa_volumes
-        source.direction.acceptance_angle.intersection_flag = True
-        source.direction.acceptance_angle.skip_policy = "SkipEvents"
+    #if aa_volumes is not None:
+    #    source.direction.acceptance_angle.volumes = aa_volumes
+    #    source.direction.acceptance_angle.intersection_flag = True
+    #    source.direction.acceptance_angle.skip_policy = "SkipEvents"
     return source
 
 
@@ -226,9 +226,21 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     digitizer = Digitizer(sim, crystal_name, name)
 
     # Singles
-    sc = digitizer.add_module("DigitizerAdderActor", f"{name}_singles")
-    sc.group_volume = None
-    sc.policy = "EnergyWinnerPosition"
+    #sc = digitizer.add_module("DigitizerAdderActor", f"{name}_singles")
+    #sc.group_volume = None
+    #sc.policy = "EnergyWeightedCentroidPosition"
+
+    # Hits
+    hc = digitizer.add_module("DigitizerHitsCollectionActor", "hits")
+    hc.attached_to = crystal_name
+    hc.output_filename = ""  # No output
+    hc.attributes = [
+        "PostPosition",
+        "TotalEnergyDeposit",
+        "PreStepUniqueVolumeID",
+        "PostStepUniqueVolumeID",
+        "GlobalTime",
+    ]
 
     # detection efficiency
     # ea = digitizer.add_module("DigitizerEfficiencyActor", f"{name}_eff")
@@ -242,7 +254,7 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     eb.blur_method = "InverseSquare"
     eb.blur_resolution = 0.089  # ???
     eb.blur_reference_value = 140.57 * keV
-    eb.spacing = [1.1049 * mm, 1.1049 * mm]
+    #eb.spacing = [1.1049 * mm, 1.1049 * mm]
     eb.size = [512, 512]
     eb.write_to_disk = True
 
