@@ -28,7 +28,7 @@ def set_nema001_simulation(sim, simu_name):
 
     # acquisition param
     time = 5 * min
-    activity = 2.5e6 * Bq / sim.number_of_threads
+    activity = 3e6 * Bq / sim.number_of_threads
     if sim.visu:
         time = 1 * sec
         activity = 100 * Bq
