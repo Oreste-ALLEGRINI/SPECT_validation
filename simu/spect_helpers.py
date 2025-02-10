@@ -182,13 +182,12 @@ def add_phantom_spatial_resolution(sim, name):
     container.color = red
     container.translation = [0, 0, 30 * mm]
 
-    # support cardboard
-    # create_wood_material(sim)
-    cardboard = sim.add_volume("Box", f"{name}_cardboard")
-    cardboard.size = [2000 * mm, 2000 * mm, 1000 * mm]
-    cardboard.translation = [0, 0, 1000 * mm]
-    cardboard.material = "G4_WATER"
-    cardboard.color = blue
+    # water cube (to mimic Gantry and CT part)
+    #cardboard = sim.add_volume("Box", f"{name}_cardboard")
+    #cardboard.size = [2000 * mm, 2000 * mm, 1000 * mm]
+    #cardboard.translation = [0, 0, 1000 * mm]
+    #cardboard.material = "G4_WATER"
+    #cardboard.color = blue
 
     # support polystyrene
     # polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
@@ -226,21 +225,21 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     digitizer = Digitizer(sim, crystal_name, name)
 
     # Singles
-    #sc = digitizer.add_module("DigitizerAdderActor", f"{name}_singles")
-    #sc.group_volume = None
-    #sc.policy = "EnergyWeightedCentroidPosition"
+    sc = digitizer.add_module("DigitizerAdderActor", f"{name}_singles")
+    sc.group_volume = None
+    sc.policy = "EnergyWeightedCentroidPosition"
 
     # Hits
-    hc = digitizer.add_module("DigitizerHitsCollectionActor", "hits")
-    hc.attached_to = crystal_name
-    hc.output_filename = ""  # No output
-    hc.attributes = [
-        "PostPosition",
-        "TotalEnergyDeposit",
-        "PreStepUniqueVolumeID",
-        "PostStepUniqueVolumeID",
-        "GlobalTime",
-    ]
+    #hc = digitizer.add_module("DigitizerHitsCollectionActor", "hits")
+    #hc.attached_to = crystal_name
+    #hc.output_filename = ""  # No output
+    #hc.attributes = [
+    #    "PostPosition",
+    #    "TotalEnergyDeposit",
+    #    "PreStepUniqueVolumeID",
+    #    "PostStepUniqueVolumeID",
+    #    "GlobalTime",
+    #]
 
     # detection efficiency
     # ea = digitizer.add_module("DigitizerEfficiencyActor", f"{name}_eff")

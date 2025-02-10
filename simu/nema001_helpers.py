@@ -32,8 +32,8 @@ def set_nema001_simulation(sim, simu_name):
     time = 5 * min
     activity = 3e6 * Bq / sim.number_of_threads
     if sim.visu:
-        time = 10 * sec
-        activity = 100 * Bq
+        time = 1 * sec
+        activity = 1 * Bq
         sim.number_of_threads = 1
 
     # world
@@ -45,7 +45,7 @@ def set_nema001_simulation(sim, simu_name):
     head, colli, crystal = nm670.add_spect_head(
         sim,
         "spect",
-        collimator_type="lehr",
+        collimator_type= "lehr", #None
         rotation_deg=15,
         crystal_size="5/8",
         debug=sim.visu,
