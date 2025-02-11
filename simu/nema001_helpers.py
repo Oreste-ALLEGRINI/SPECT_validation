@@ -11,11 +11,11 @@ def set_nema001_simulation(sim, simu_name):
 
     # main options
     # sim.visu = True
-    sim.visu_type = "qt"
-    sim.random_seed = "auto"
-    sim.number_of_threads = 8
+    sim.visu_type = "vrml_file_only"
+    sim.visu_filename = "spatial_resolution.wrl"
+    sim.number_of_threads = 32
     sim.progress_bar = True
-    sim.output_dir = Path("output_t2") / simu_name
+    sim.output_dir = Path("planar_spatial_res") / simu_name
 
     # units
     sec = gate.g4_units.s
@@ -89,11 +89,11 @@ def set_nema001_simulation_2sources(sim, simu_name):
 
     # main options
     # sim.visu = True
-    sim.visu_type = "qt"
-    sim.random_seed = "auto"
-    sim.number_of_threads = 8
+    sim.visu_type = "vrml_file_only"
+    sim.visu_filename = "spatial_resolution.wrl"
+    sim.number_of_threads = 32
     sim.progress_bar = True
-    sim.output_dir = Path("output_t2") / simu_name
+    sim.output_dir = Path("planar_spatial_res") / simu_name
 
     # units
     sec = gate.g4_units.s

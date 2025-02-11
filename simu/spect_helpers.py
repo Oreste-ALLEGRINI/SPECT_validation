@@ -28,7 +28,7 @@ def add_digitizer_intevo_lu177(sim, name, crystal_name):
     singles.attached_to = crystal_name
     singles.input_digi_collection = hits.name
     # sc.policy = "EnergyWeightedCentroidPosition"
-    singles.policy = "EnergyWinnerPosition"
+    singles.policy = "EnergyWeightedCentroidPosition"
     singles.output_filename = ""  # No output
     singles.group_volume = None
 
