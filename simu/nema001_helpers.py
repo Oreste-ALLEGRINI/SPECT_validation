@@ -42,34 +42,69 @@ def set_nema001_simulation(sim, simu_name):
     world.material = "G4_AIR"
 
     # spect head
-    head, colli, crystal = nm670.add_spect_head(
+    #head, colli, crystal = nm670.add_spect_head(
+    #    sim,
+    #    "spect",
+    #    collimator_type= None,
+    #    rotation_deg=15,
+    #    crystal_size="5/8",
+    #    debug=sim.visu,
+    #)
+    #nm670.rotate_gantry(head, radius=10 * cm, start_angle_deg=0)
+
+    # spect two head
+    head, crystal = nm670.add_spect_two_heads(
         sim,
         "spect",
-        collimator_type= "lehr", #None
+        collimator_type= "plexi",
         rotation_deg=15,
         crystal_size="5/8",
         debug=sim.visu,
     )
-    nm670.rotate_gantry(head, radius=10 * cm, start_angle_deg=0)
+    nm670.rotate_gantry(head[0], radius=0 * cm, start_angle_deg=0)
+    nm670.rotate_gantry(head[1], radius=38.5 * cm, start_angle_deg=0)
 
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
     table.translation = [0, 20.5 * cm, -130 * cm]
     glass_tube = add_phantom_spatial_resolution(sim, "phantom")
 
-    # source with AA to speedup
+    # source without AA
     container = sim.volume_manager.get_volume(f"phantom_source_container")
-    src = add_source_spatial_resolution(sim, "source", container, "Tc99m", [head.name])
+    src = add_source_spatial_resolution(sim, "source", container, "Tc99m")
     src.activity = activity
+
+    # source with AA to speedup
+    #container = sim.volume_manager.get_volume(f"phantom_source_container")
+    #src = add_source_spatial_resolution(sim, "source", container, "Tc99m", [head.name])
+    #src.activity = activity
 
     # physics
     sim.physics_manager.physics_list_name = "G4EmStandardPhysics_option3"
     sim.physics_manager.set_production_cut("world", "all", 10 * mm)
     sim.physics_manager.set_production_cut("phantom", "all", 2 * mm)
-    sim.physics_manager.set_production_cut(crystal.name, "all", 2 * mm)
+    # One head
+    #sim.physics_manager.set_production_cut(crystal.name, "all", 2 * mm)
+    # Two heads
+    sim.physics_manager.set_production_cut(crystal[0].name, "all", 2 * mm)
+    sim.physics_manager.set_production_cut(crystal[1].name, "all", 2 * mm)
 
     # digitizer : probably not correct
-    digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
+    # One head
+    #digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
+
+    #proj = digit.find_module("projection")
+    #proj.output_filename = f"{simu_name}_projection.mhd"
+    #print(f"Projection size: {proj.size}")
+    #print(f"Projection spacing: {proj.spacing} mm")
+    #print(f"Projection output: {proj.get_output_path()}")
+    #digit_blur = digit.find_module("digitizer_sp_blur")
+    #ener_blur = digit.find_module("digitizer_blur")
+    #ener_blur.output_filename = f"{simu_name}_energy.root"
+
+    # Two heads
+    digit = add_digitizer_tc99m_wip(sim, crystal[0].name, "digitizer", False)
+
     proj = digit.find_module("projection")
     proj.output_filename = f"{simu_name}_projection.mhd"
     print(f"Projection size: {proj.size}")
@@ -78,10 +113,11 @@ def set_nema001_simulation(sim, simu_name):
     digit_blur = digit.find_module("digitizer_sp_blur")
     ener_blur = digit.find_module("digitizer_blur")
     ener_blur.output_filename = f"{simu_name}_energy.root"
+
     
     # add PhaseSpace actor
     phsp = sim.add_actor("PhaseSpaceActor", "PhaseSpace")
-    phsp.attached_to = "spect_crystal"
+    phsp.attached_to = "spect_1_crystal"
     phsp.attributes = [
     "KineticEnergy",
     "TotalEnergyDeposit",

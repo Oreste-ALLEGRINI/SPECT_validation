@@ -19,7 +19,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 )
 @click.option("--fwhm_blur", default=4.6, help="FWHM spatial blur in digitizer")
 @click.option(
-    "--distance", "-d", default=10 * g4_units.cm, help="Distance source-detector in mm"
+    "--distance", "-d", default=27.5 * g4_units.cm, help="Distance source-detector in mm"
 )
 def go(source_orientation, fwhm_blur, distance):
 
@@ -30,7 +30,7 @@ def go(source_orientation, fwhm_blur, distance):
     sim = gate.Simulation()
 
     # main options
-    # sim.visu = True
+    sim.visu = True
 
     pos, crystal_distance, psd = compute_plane_position_and_distance_to_crystal("lehr")
     print("User distance =", distance)
@@ -48,8 +48,8 @@ def go(source_orientation, fwhm_blur, distance):
         syringue.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
 
     # camera distance
-    nm670.rotate_gantry(head, radius=distance, start_angle_deg=270)
-    print(head.translation)
+    nm670.rotate_gantry(head[0], radius=distance, start_angle_deg=270)
+    print(head[0].translation)
 
     # digitizer
     digit_blur.blur_fwhm = fwhm_blur

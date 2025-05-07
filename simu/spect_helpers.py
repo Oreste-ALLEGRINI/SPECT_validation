@@ -183,11 +183,18 @@ def add_phantom_spatial_resolution(sim, name):
     container.translation = [0, 0, 30 * mm]
 
     # water cube (to mimic Gantry and CT part)
-    #cardboard = sim.add_volume("Box", f"{name}_cardboard")
-    #cardboard.size = [2000 * mm, 2000 * mm, 1000 * mm]
-    #cardboard.translation = [0, 0, 1000 * mm]
-    #cardboard.material = "G4_WATER"
-    #cardboard.color = blue
+    gantry = sim.add_volume("Box", f"{name}_gantry")
+    gantry.size = [2000 * mm, 2000 * mm, 1000 * mm]
+    gantry.translation = [0, 0, 1000 * mm]
+    gantry.material = "G4_WATER"
+    gantry.color = blue
+
+    # concrete wall (to simulate the wall backside the syringue)
+    concrete_wall = sim.add_volume("Box", f"{name}_concrete_wall")
+    concrete_wall.size = [1000 * mm, 3000 * mm, 3000 * mm]
+    concrete_wall.translation = [-3300 * mm, 0, 0 * mm]
+    concrete_wall.material = "G4_CONCRETE"
+    concrete_wall.color = blue
 
     # support polystyrene
     # polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
@@ -212,10 +219,10 @@ def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=
     source.position.dz = container.dz
     source.direction.type = "iso"
     gate.sources.base.set_source_rad_energy_spectrum(source, rad)
-    #if aa_volumes is not None:
-    #    source.direction.acceptance_angle.volumes = aa_volumes
-    #    source.direction.acceptance_angle.intersection_flag = True
-    #    source.direction.acceptance_angle.skip_policy = "SkipEvents"
+    if aa_volumes is not None:
+        source.direction.acceptance_angle.volumes = aa_volumes
+        source.direction.acceptance_angle.intersection_flag = True
+        source.direction.acceptance_angle.skip_policy = "SkipEvents"
     return source
 
 
