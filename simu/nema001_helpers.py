@@ -30,13 +30,13 @@ def set_nema001_simulation(sim, simu_name, distance):
     BqmL = Bq / cm3
 
     # acquisition param
-    time = 5 * min
+    time = 50 * min
     activity = 3e6 * Bq / sim.number_of_threads
-    conc_a = 1000 * BqmL
+    conc_a = 10000 * BqmL
     if sim.visu:
         time = 10 * sec
         activity = 5 * Bq
-        conc_a = 100000 * BqmL
+        conc_a = 10 * BqmL
         sim.number_of_threads = 1
     
 
