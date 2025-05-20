@@ -5,8 +5,12 @@ import opengate as gate
 from scipy.spatial.transform import Rotation
 import opengate.contrib.spect.siemens_intevo as intevo
 from opengate.actors.digitizers import Digitizer
-import opengate.contrib.phantoms.nemaiec as gate_iec
-
+import opengate.contrib.phantoms.nemaiecSPECT as gate_iec
+from opengate.voxelize import (
+    voxelize_geometry,
+    write_voxelized_geometry,
+    voxelized_source,
+)
 
 def add_digitizer_intevo_lu177(sim, name, crystal_name):
     """
@@ -206,12 +210,13 @@ def add_phantom_spatial_resolution(sim, name):
 
     return glass_tube
 
-def add_iec_phantom(sim, aa_volumes, name_supp):
+def add_iec_phantom(sim, aa_volumes, conc_a, name_supp):
     # rotation 180 around X to be like in the iec 61217 coordinate system
     mm = gate.g4_units.mm
-    iec_phantom = gate_iec.add_iec_phantom(sim)
+    iec_phantom = gate_iec.add_iec_phantom(sim, sphere_starting_angle=0)
     iec_phantom.translation = [0 * mm, 0 * mm, 0 * mm]
     iec_phantom.rotation = Rotation.from_euler("x", 0, degrees=True).as_matrix()
+    iec_phantom.rotation = Rotation.from_euler("y", 180, degrees=True).as_matrix()
 
     # add sources for all spheres
     cm3 = gate.g4_units.cm3
@@ -219,32 +224,34 @@ def add_iec_phantom(sim, aa_volumes, name_supp):
     BqmL = Bq / cm3
     mm = gate.g4_units.mm
     red = [1, 0.7, 0.7, 0.8]
-    a = 713 * BqmL
-    activity_Bq_mL = [10 * a, 10 * a, 10 * a, 10 * a, 10 * a, 10 * a]
-    sources = gate_iec.add_spheres_sources(sim, iec_phantom.name, "sources", "all", activity_Bq_mL, verbose=True)
+    #conc_a = 713 * BqmL
+    activity_Bq_mL = [0 * conc_a, 8 * conc_a, 8 * conc_a, 8 * conc_a, 8 * conc_a, 0 * conc_a ]
+    sources = gate_iec.add_spheres_sources(sim, iec_phantom.name, "sources", "all", activity_Bq_mL, spheres_diam = [37, 13, 17, 22, 28, 28], verbose=True)
     for source in sources:
         set_iec_sources(source, rad = "Tc99m")
-        gate.sources.base.set_source_rad_energy_spectrum(source, rad = "Tc99m")
+        gate.sources.utility.set_source_energy_spectrum(source, rad = "Tc99m")
         if aa_volumes is not None:
             source.direction.acceptance_angle.volumes = aa_volumes
             source.direction.acceptance_angle.intersection_flag = True
             source.direction.acceptance_angle.skip_policy = "SkipEvents"
 
     # support polystyrene
-    polystyrene = sim.add_volume("Box", f"{name_supp}_polystyrene")
-    polystyrene.size = [470 * mm, 20 * mm, 400 * mm]
-    polystyrene.translation = [
-        iec_phantom.translation[0],
-        iec_phantom.translation[1] - 80 - polystyrene.size[1] / 2,
-        polystyrene.size[2] / 2 - 400 / 2,
-    ]
-    polystyrene.material = "G4_POLYSTYRENE"
-    polystyrene.color = red
+    #polystyrene = sim.add_volume("Box", f"{name_supp}_polystyrene")
+    #polystyrene.size = [470 * mm, 20 * mm, 400 * mm]
+    #polystyrene.translation = [
+    #    iec_phantom.translation[0],
+    #    iec_phantom.translation[1] - 80 - polystyrene.size[1] / 2,
+    #    polystyrene.size[2] / 2 - 400 / 2,
+    #]
+    #polystyrene.material = "G4_POLYSTYRENE"
+    #polystyrene.color = red
+    
     return iec_phantom
 
 def set_iec_sources(source, rad = "Tc99m"):
         source.particle = "gamma"
-        gate.sources.base.set_source_rad_energy_spectrum(source, rad)
+        gate.sources.utility.set_source_energy_spectrum(source, rad)
+        #gate.sources.base.set_source_rad_energy_spectrum(source, rad)
 
 
 def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
@@ -255,7 +262,8 @@ def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=
     source.position.radius = container.rmax
     source.position.dz = container.dz
     source.direction.type = "iso"
-    gate.sources.base.set_source_rad_energy_spectrum(source, rad)
+    gate.sources.utility.set_source_energy_spectrum(source, rad)
+    #gate.sources.base.set_source_rad_energy_spectrum(source, rad)
     if aa_volumes is not None:
         source.direction.acceptance_angle.volumes = aa_volumes
         source.direction.acceptance_angle.intersection_flag = True
@@ -308,8 +316,8 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     proj = digitizer.add_module("DigitizerProjectionActor", f"{name}_projection")
     channel_names = [c["name"] for c in channels]
     proj.input_digi_collections = channel_names
-    proj.spacing = [1.1049 * mm, 1.1049 * mm]
-    proj.size = [512, 512]
+    proj.spacing = [2.2098 * mm, 2.2098 * mm]
+    proj.size = [256, 256]
     proj.write_to_disk = True
 
     # end

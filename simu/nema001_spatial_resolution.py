@@ -19,10 +19,9 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 )
 @click.option("--fwhm_blur", default=4.6, help="FWHM spatial blur in digitizer")
 @click.option(
-    "--distance", "-d", default=15 * g4_units.cm, help="Distance source-detector in mm"
+    "--distance", "-d", default=25 * g4_units.cm, help="Distance source-detector in mm"
 )
 def go(source_orientation, fwhm_blur, distance):
-
     # folders
     simu_name = f"nema001_{source_orientation}_blur_{fwhm_blur:.2f}_d_{distance:.2f}"
 
@@ -41,11 +40,11 @@ def go(source_orientation, fwhm_blur, distance):
     print("final radius =", distance)
 
     # create simulation
-    head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name, distance)
+    head, iec_phantom, digit_blur = set_nema001_simulation(sim, simu_name, distance)
 
     # orientation of the linear source
     if source_orientation == "X":
-        glass_tube.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
+        iec_phantom.rotation = Rotation.from_euler("Y", 90, degrees=True).as_matrix()
 
     # camera distance
     #rotate_gantry_helpers(head, radius=distance, start_angle_deg=0, step_angle_deg = 30, nb_angle = 2)
