@@ -33,7 +33,7 @@ def add_digitizer_intevo_lu177(sim, name, crystal_name):
     singles.attached_to = crystal_name
     singles.input_digi_collection = hits.name
     # sc.policy = "EnergyWeightedCentroidPosition"
-    singles.policy = "EnergyWinnerPosition"
+    singles.policy = "EnergyWeightedCentroidPosition"
     singles.output_filename = ""  # No output
     singles.group_volume = None
 
@@ -194,6 +194,34 @@ def set_iec_sources(source, rad = "Tc99m"):
         gate.sources.utility.set_source_energy_spectrum(source, rad)
         #gate.sources.base.set_source_rad_energy_spectrum(source, rad)
 
+def add_2sources_spatial_resolution(sim, name, name2, container, container2, rad="lu177", aa_volumes=None):
+    source = sim.add_source("GenericSource", name)
+    source.attached_to = container.name
+    source.particle = "gamma"
+    source.position.type = "cylinder"
+    source.position.radius = container.rmax
+    source.position.dz = container.dz
+    source.direction.type = "iso"
+    gate.sources.base.set_source_rad_energy_spectrum(source, rad)
+    if aa_volumes is not None:
+        source.direction.acceptance_angle.volumes = aa_volumes
+        source.direction.acceptance_angle.intersection_flag = True
+        source.direction.acceptance_angle.skip_policy = "SkipEvents"
+    
+    source2 = sim.add_source("GenericSource", name2)
+    source2.attached_to = container2.name
+    source2.particle = "gamma"
+    source2.position.type = "cylinder"
+    source2.position.radius = container2.rmax
+    source2.position.dz = container2.dz
+    source2.direction.type = "iso"
+    gate.sources.base.set_source_rad_energy_spectrum(source2, rad)
+    if aa_volumes is not None:
+        source2.direction.acceptance_angle.volumes = aa_volumes
+        source2.direction.acceptance_angle.intersection_flag = True
+        source2.direction.acceptance_angle.skip_policy = "SkipEvents"
+
+    return source, source2
 
 def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     # create main chain
@@ -215,7 +243,7 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     eb = digitizer.add_module("DigitizerBlurringActor", f"{name}_blur")
     eb.blur_attribute = "TotalEnergyDeposit"
     eb.blur_method = "InverseSquare"
-    eb.blur_resolution = 0.0965  # ???
+    eb.blur_resolution = 0.089  # ???
     eb.blur_reference_value = 140.57 * keV
 
     # spatial blurring
