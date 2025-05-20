@@ -150,65 +150,6 @@ def rotate_gantry_helpers(
     head.add_dynamic_parametrisation(translation=translations, rotation=rotations)
 
 
-def create_wood_material(sim):
-    # https://geant4-forum.web.cern.ch/t/how-to-implement-specific-materials-like-pur-and-paper/9184
-    # C18 H13 N3 Na2O8 S2
-    elems = ["C", "H", "N", "Na", "S"]
-    nbAtoms = [18, 13, 2, 208, 2]
-    gcm3 = gate.g4_units.g_cm3
-    sim.volume_manager.material_database.add_material_nb_atoms(
-        "WoodFibers", elems, nbAtoms, 0.6 * gcm3
-    )
-
-
-def add_phantom_spatial_resolution(sim, name):
-    # def
-    mm = gate.g4_units.mm
-    red = [1, 0.7, 0.7, 0.8]
-    blue = [0.5, 0.5, 1, 0.8]
-    gray = [0.5, 0.5, 0.5, 1]
-
-    # source glass tube
-    glass_tube = sim.add_volume("Tubs", f"{name}")
-    glass_tube.rmin = 0 * mm
-    glass_tube.rmax = 0.75 * mm
-    glass_tube.dz = 70 * mm / 2.0
-    glass_tube.translation = [0, 0, 0]
-    # glass_tube.material = "G4_PLEXIGLASS"
-    glass_tube.material = "G4_Pyrex_Glass"
-    # glass_tube.material = "G4_GLASS_LEAD"
-    # glass_tube.material = "G4_GLASS_PLATE"
-    glass_tube.color = blue
-
-    # source container
-    container = sim.add_volume("Tubs", f"{name}_source_container")
-    container.mother = glass_tube
-    container.rmin = 0
-    container.rmax = 0.5 * mm
-    container.dz = 70 * mm / 2.0 - 1 * mm
-    container.material = "G4_AIR"
-    container.color = red
-
-    # support cardboard
-    create_wood_material(sim)
-    cardboard = sim.add_volume("Box", f"{name}_cardboard")
-    cardboard.size = [245 * mm, 75 * mm, 125 * mm]
-    cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
-    cardboard.material = "WoodFibers"
-    cardboard.color = gray
-
-    # support polystyrene
-    polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
-    polystyrene.size = [450 * mm, 50 * mm, 400 * mm]
-    polystyrene.translation = [
-        0,
-        cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
-        polystyrene.size[2] / 2 - cardboard.size[2] / 2,
-    ]
-    polystyrene.material = "G4_POLYSTYRENE"
-    polystyrene.color = red
-
-    return glass_tube
 
 def add_iec_phantom(sim, aa_volumes, conc_a, name_supp):
     # rotation 180 around X to be like in the iec 61217 coordinate system
@@ -252,23 +193,6 @@ def set_iec_sources(source, rad = "Tc99m"):
         source.particle = "gamma"
         gate.sources.utility.set_source_energy_spectrum(source, rad)
         #gate.sources.base.set_source_rad_energy_spectrum(source, rad)
-
-
-def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
-    source = sim.add_source("GenericSource", name)
-    source.attached_to = container.name
-    source.particle = "gamma"
-    source.position.type = "cylinder"
-    source.position.radius = container.rmax
-    source.position.dz = container.dz
-    source.direction.type = "iso"
-    gate.sources.utility.set_source_energy_spectrum(source, rad)
-    #gate.sources.base.set_source_rad_energy_spectrum(source, rad)
-    if aa_volumes is not None:
-        source.direction.acceptance_angle.volumes = aa_volumes
-        source.direction.acceptance_angle.intersection_flag = True
-        source.direction.acceptance_angle.skip_policy = "SkipEvents"
-    return source
 
 
 def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):

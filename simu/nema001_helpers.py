@@ -67,23 +67,6 @@ def set_nema001_simulation(sim, simu_name, distance):
     labels, image = voxelize_geometry(sim, extent=iec_phantom, spacing=spacing)
     filenames = write_voxelized_geometry(sim, labels, image, Path("output_iec") / "test_iec_vox.mhd")
     print(filenames)
-
-    #volume_labels, image = sim.voxelize_geometry(extent=iec_phantom, spacing=spacing)
-    #info = img.get_info_from_image(image)
-    #print(f"Image size={info.size}")
-    #print(f"Image spacing={info.spacing}")
-    #print(f"Image origin={info.origin}")
-
-    # write files
-    #filenames = vox.write_voxelized_geometry(sim, volume_labels, image, f"{simu_name}_voxelized_IEC_phantom")
-    #for f in filenames.values():
-    #    print(f"Output: {f}")
-
-    # source with AA to speedup
-    #container = sim.volume_manager.get_volume(f"phantom_source_container")
-    #src = add_source_spatial_resolution(sim, "source", container, "Tc99m", [head.name])
-    #src.activity = activity
-
     
     # physics
     sim.physics_manager.physics_list_name = "G4EmStandardPhysics_option3"
