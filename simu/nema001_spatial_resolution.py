@@ -15,11 +15,11 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option(
-    "--source_orientation", "-s", default="X", help="Orientation of the source X or Y"
+    "--source_orientation", "-s", default="Y", help="Orientation of the source X or Y"
 )
 @click.option("--fwhm_blur", default=4.6, help="FWHM spatial blur in digitizer")
 @click.option(
-    "--distance", "-d", default=25 * g4_units.cm, help="Distance source-detector in mm"
+    "--distance", "-d", default=22.5 * g4_units.cm, help="Distance source-detector in mm"
 )
 def go(source_orientation, fwhm_blur, distance):
     # folders

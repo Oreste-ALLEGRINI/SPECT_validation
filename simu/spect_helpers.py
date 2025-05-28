@@ -175,6 +175,12 @@ def add_iec_phantom(sim, aa_volumes, conc_a, name_supp):
             source.direction.acceptance_angle.volumes = aa_volumes
             source.direction.acceptance_angle.intersection_flag = True
             source.direction.acceptance_angle.skip_policy = "SkipEvents"
+    bg_source = gate_iec.add_background_source(sim, iec_phantom.name,"source",conc_a, verbose=True)
+    set_iec_sources(bg_source, rad ="Tc99m")
+    if aa_volumes is not None:
+            bg_source.direction.acceptance_angle.volumes = aa_volumes
+            bg_source.direction.acceptance_angle.intersection_flag = True
+            bg_source.direction.acceptance_angle.skip_policy = "SkipEvents"
 
     # support polystyrene
     #polystyrene = sim.add_volume("Box", f"{name_supp}_polystyrene")
@@ -193,35 +199,6 @@ def set_iec_sources(source, rad = "Tc99m"):
         source.particle = "gamma"
         gate.sources.utility.set_source_energy_spectrum(source, rad)
         #gate.sources.base.set_source_rad_energy_spectrum(source, rad)
-
-def add_2sources_spatial_resolution(sim, name, name2, container, container2, rad="lu177", aa_volumes=None):
-    source = sim.add_source("GenericSource", name)
-    source.attached_to = container.name
-    source.particle = "gamma"
-    source.position.type = "cylinder"
-    source.position.radius = container.rmax
-    source.position.dz = container.dz
-    source.direction.type = "iso"
-    gate.sources.base.set_source_rad_energy_spectrum(source, rad)
-    if aa_volumes is not None:
-        source.direction.acceptance_angle.volumes = aa_volumes
-        source.direction.acceptance_angle.intersection_flag = True
-        source.direction.acceptance_angle.skip_policy = "SkipEvents"
-    
-    source2 = sim.add_source("GenericSource", name2)
-    source2.attached_to = container2.name
-    source2.particle = "gamma"
-    source2.position.type = "cylinder"
-    source2.position.radius = container2.rmax
-    source2.position.dz = container2.dz
-    source2.direction.type = "iso"
-    gate.sources.base.set_source_rad_energy_spectrum(source2, rad)
-    if aa_volumes is not None:
-        source2.direction.acceptance_angle.volumes = aa_volumes
-        source2.direction.acceptance_angle.intersection_flag = True
-        source2.direction.acceptance_angle.skip_policy = "SkipEvents"
-
-    return source, source2
 
 def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     # create main chain

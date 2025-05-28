@@ -14,7 +14,7 @@ def set_nema001_simulation(sim, simu_name, distance):
     sim.visu_type = "vrml_file_only"
     sim.visu_filename = "test.wrl"
     sim.random_seed = "auto"
-    sim.number_of_threads = 1
+    sim.number_of_threads = 30
     sim.progress_bar = True
     sim.output_dir = Path("output_iec") / simu_name
 
@@ -30,9 +30,9 @@ def set_nema001_simulation(sim, simu_name, distance):
     BqmL = Bq / cm3
 
     # acquisition param
-    time = 50 * min
+    time = 20 * min
     activity = 3e6 * Bq / sim.number_of_threads
-    conc_a = 10000 * BqmL
+    conc_a = 100000 * BqmL / sim.number_of_threads
     if sim.visu:
         time = 10 * sec
         activity = 5 * Bq
@@ -60,7 +60,7 @@ def set_nema001_simulation(sim, simu_name, distance):
 
     # CREATE phantom and source with AA to speedup + (fake) table
     table = add_fake_table(sim, "table")
-    table.translation = [0, 23.2 * cm, 0]
+    table.translation = [0, 22.2 * cm, 0]
 
     iec_phantom = add_iec_phantom(sim, aa_volumes= [head.name], conc_a=conc_a, name_supp= "phantom")
     spacing = (2.2098 * mm, 2.2098 * mm, 2.2098 * mm)
@@ -84,8 +84,8 @@ def set_nema001_simulation(sim, simu_name, distance):
     digit_blur = digit.find_module("digitizer_sp_blur")
 
     #rotation
-    nb_angle = 12
-    rotate_gantry_helpers(head, radius=distance, start_angle_deg=0, step_angle_deg = 30, nb_angle = nb_angle)
+    nb_angle = 120
+    rotate_gantry_helpers(head, radius=distance, start_angle_deg=0, step_angle_deg = 3, nb_angle = nb_angle)
 
     # add stat actor
     stats = sim.add_actor("SimulationStatisticsActor", "stats")
