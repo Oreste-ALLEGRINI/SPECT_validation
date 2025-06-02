@@ -14,7 +14,7 @@ def set_nema001_simulation(sim, simu_name):
     sim.visu_type = "vrml_file_only"
     sim.visu_filename = "energy_resolution.wrl"
     sim.random_seed = "auto"
-    sim.number_of_threads = 32
+    sim.number_of_threads = 30
     sim.progress_bar = True
     sim.output_dir = Path("energy_resolution") / simu_name
     #sim.verbose_level = "DEBUG"
@@ -67,16 +67,17 @@ def set_nema001_simulation(sim, simu_name):
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
     table.translation = [0, 20.5 * cm, -130 * cm]
-    glass_tube = add_phantom_spatial_resolution(sim, "phantom")
+    glass_tube = add_phantom_energy_resolution(sim, "phantom")
 
     # source without AA
     container = sim.volume_manager.get_volume(f"phantom_source_container")
-    src = add_source_spatial_resolution(sim, "source", container, "Tc99m")
+    src = add_source_energy_resolution(sim, "source", container, "Tc99m")
+    #src = add_source_energy_resolution(sim, "source", container, "Lu177")
     src.activity = activity
 
     # source with AA to speedup
     #container = sim.volume_manager.get_volume(f"phantom_source_container")
-    #src = add_source_spatial_resolution(sim, "source", container, "Tc99m", [head.name])
+    #src = add_source_energy_resolution(sim, "source", container, "Tc99m", [head.name])
     #src.activity = activity
 
     # physics
@@ -91,19 +92,7 @@ def set_nema001_simulation(sim, simu_name):
 
     # digitizer : probably not correct
     # One head
-    #digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
-
-    #proj = digit.find_module("projection")
-    #proj.output_filename = f"{simu_name}_projection.mhd"
-    #print(f"Projection size: {proj.size}")
-    #print(f"Projection spacing: {proj.spacing} mm")
-    #print(f"Projection output: {proj.get_output_path()}")
-    #digit_blur = digit.find_module("digitizer_sp_blur")
-    #ener_blur = digit.find_module("digitizer_blur")
-    #ener_blur.output_filename = f"{simu_name}_energy.root"
-
-    # Two heads
-    digit = add_digitizer_tc99m_wip(sim, crystal[0].name, "digitizer", False)
+    """ digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
 
     proj = digit.find_module("projection")
     proj.output_filename = f"{simu_name}_projection.mhd"
@@ -112,7 +101,31 @@ def set_nema001_simulation(sim, simu_name):
     print(f"Projection output: {proj.get_output_path()}")
     digit_blur = digit.find_module("digitizer_sp_blur")
     ener_blur = digit.find_module("digitizer_blur")
-    ener_blur.output_filename = f"{simu_name}_energy.root"
+    ener_blur.output_filename = f"{simu_name}_energy.root" """
+
+    # Two heads
+    digit0 = add_digitizer_tc99m_wip(sim, crystal[0].name, "digitizer1", False)
+    digit1 = add_digitizer_tc99m_wip(sim, crystal[1].name, "digitizer2", False)
+    #digit0 = add_digitizer_lu177_wip(sim, crystal[0].name, "digitizer1", False)
+    #digit1 = add_digitizer_lu177_wip(sim, crystal[1].name, "digitizer2", False)
+
+    proj0 = digit0.find_module("projection")
+    proj0.output_filename = f"{simu_name}_projectionhead1.mhd"
+    print(f"Projection size: {proj0.size}")
+    print(f"Projection spacing: {proj0.spacing} mm")
+    print(f"Projection output: {proj0.get_output_path()}")
+    digit_blur = digit0.find_module("digitizer1_sp_blur")
+    ener_blur = digit0.find_module("digitizer1_blur")
+    ener_blur.output_filename = f"{simu_name}_energy_head1.root"
+
+    proj1 = digit1.find_module("projection")
+    proj1.output_filename = f"{simu_name}_projectionhead2.mhd"
+    print(f"Projection size: {proj1.size}")
+    print(f"Projection spacing: {proj1.spacing} mm")
+    print(f"Projection output: {proj1.get_output_path()}")
+    digit_blur = digit1.find_module("digitizer2_sp_blur")
+    ener_blur = digit1.find_module("digitizer2_blur")
+    ener_blur.output_filename = f"{simu_name}_energy_head2.root"
 
     
     # add PhaseSpace actor

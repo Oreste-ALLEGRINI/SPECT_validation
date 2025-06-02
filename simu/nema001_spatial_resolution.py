@@ -30,7 +30,7 @@ def go(source_orientation, fwhm_blur, distance):
     sim = gate.Simulation()
 
     # main options
-    sim.visu = True
+    # sim.visu = True
 
     pos, crystal_distance, psd = compute_plane_position_and_distance_to_crystal("lehr")
     print("User distance =", distance)

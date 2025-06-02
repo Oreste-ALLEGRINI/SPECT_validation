@@ -5,7 +5,7 @@ import opengate as gate
 from scipy.spatial.transform import Rotation
 import opengate.contrib.spect.siemens_intevo as intevo
 from opengate.actors.digitizers import Digitizer
-
+from opengate.sources.utility import get_spectrum
 
 def add_digitizer_intevo_lu177(sim, name, crystal_name):
     """
@@ -153,7 +153,7 @@ def create_wood_material(sim):
     )
 
 
-def add_phantom_spatial_resolution(sim, name):
+def add_phantom_energy_resolution(sim, name):
     # def
     mm = gate.g4_units.mm
     red = [1, 0.7, 0.7, 0.8]
@@ -210,7 +210,8 @@ def add_phantom_spatial_resolution(sim, name):
     return syringue
 
 
-def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
+def add_source_energy_resolution(sim, name, container, rad="Tc99m", aa_volumes=None):
+    spectrum = get_spectrum(rad, "gamma")
     source = sim.add_source("GenericSource", name)
     source.attached_to = container.name
     source.particle = "gamma"
@@ -218,12 +219,65 @@ def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=
     source.position.radius = container.rmax
     source.position.dz = container.dz
     source.direction.type = "iso"
-    gate.sources.base.set_source_rad_energy_spectrum(source, rad)
+    source.energy.type = "spectrum_discrete"
+    source.energy.spectrum_energies = spectrum.energies
+    source.energy.spectrum_weights = spectrum.weights
     if aa_volumes is not None:
         source.direction.acceptance_angle.volumes = aa_volumes
         source.direction.acceptance_angle.intersection_flag = True
         source.direction.acceptance_angle.skip_policy = "SkipEvents"
     return source
+
+def add_digitizer_lu177_wip(sim, crystal_name, name, spectrum_channel=True):
+    # create main chain
+    mm = gate.g4_units.mm
+    digitizer = Digitizer(sim, crystal_name, name)
+
+    # Singles
+    sc = digitizer.add_module("DigitizerAdderActor", f"{name}_singles")
+    sc.group_volume = None
+    sc.policy = "EnergyWeightedCentroidPosition"
+
+    # energy blurring
+    keV = gate.g4_units.keV
+    # (3/8” Crystal) = Intrinsic Energy Resolution (Tc-99m @ 20 kcps) UFOV FWHM ≤ 6.3%
+    eb = digitizer.add_module("DigitizerBlurringActor", f"{name}_blur")
+    eb.blur_attribute = "TotalEnergyDeposit"
+    eb.blur_method = "InverseSquare"
+    eb.blur_resolution = 0.098  # ???
+    eb.blur_reference_value = 208 * keV
+    #eb.spacing = [1.1049 * mm, 1.1049 * mm]
+    eb.size = [512, 512]
+    eb.write_to_disk = True
+
+    # spatial blurring
+    sb = digitizer.add_module("DigitizerSpatialBlurringActor", f"{name}_sp_blur")
+    sb.attached_to = crystal_name
+    sb.blur_attribute = "PostPosition"
+    sb.blur_fwhm = 10.3 * mm  # ???
+    sb.keep_in_solid_limits = True
+
+    # energy windows (Energy range. 35-588 keV)
+    cc = digitizer.add_module("DigitizerEnergyWindowsActor", f"{name}_energy_window")
+    channels = [
+        {"name": f"spectrum", "min": 3 * keV, "max": 300 * keV},
+        {"name": f"scatter", "min": 169.1 * keV, "max": 186.9 * keV},
+        {"name": f"peak208", "min": 187.2 * keV, "max": 228.8 * keV},
+    ]
+    if not spectrum_channel:
+        channels.pop(0)
+    cc.channels = channels
+
+    # projection
+    proj = digitizer.add_module("DigitizerProjectionActor", f"{name}_projection")
+    channel_names = [c["name"] for c in channels]
+    proj.input_digi_collections = channel_names
+    proj.spacing = [1.1049 * mm, 1.1049 * mm]
+    proj.size = [512, 512]
+    proj.write_to_disk = True
+
+    # end
+    return digitizer
 
 
 def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
