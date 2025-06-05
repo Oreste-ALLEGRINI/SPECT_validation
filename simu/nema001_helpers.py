@@ -71,8 +71,8 @@ def set_nema001_simulation(sim, simu_name):
 
     # source without AA
     container = sim.volume_manager.get_volume(f"phantom_source_container")
-    src = add_source_energy_resolution(sim, "source", container, "Tc99m")
-    #src = add_source_energy_resolution(sim, "source", container, "Lu177")
+    #src = add_source_energy_resolution(sim, "source", container, "Tc99m")
+    src = add_source_energy_resolution(sim, "source", container, "Lu177")
     src.activity = activity
 
     # source with AA to speedup
@@ -104,10 +104,10 @@ def set_nema001_simulation(sim, simu_name):
     ener_blur.output_filename = f"{simu_name}_energy.root" """
 
     # Two heads
-    digit0 = add_digitizer_tc99m_wip(sim, crystal[0].name, "digitizer1", False)
-    digit1 = add_digitizer_tc99m_wip(sim, crystal[1].name, "digitizer2", False)
-    #digit0 = add_digitizer_lu177_wip(sim, crystal[0].name, "digitizer1", False)
-    #digit1 = add_digitizer_lu177_wip(sim, crystal[1].name, "digitizer2", False)
+    #digit0 = add_digitizer_tc99m_wip(sim, crystal[0].name, "digitizer1", False)
+    #digit1 = add_digitizer_tc99m_wip(sim, crystal[1].name, "digitizer2", False)
+    digit0 = add_digitizer_lu177_wip(sim, crystal[0].name, "digitizer1", False)
+    digit1 = add_digitizer_lu177_wip(sim, crystal[1].name, "digitizer2", False)
 
     proj0 = digit0.find_module("projection")
     proj0.output_filename = f"{simu_name}_projectionhead1.mhd"
@@ -116,6 +116,8 @@ def set_nema001_simulation(sim, simu_name):
     print(f"Projection output: {proj0.get_output_path()}")
     digit_blur = digit0.find_module("digitizer1_sp_blur")
     ener_blur = digit0.find_module("digitizer1_blur")
+    ener_win = digit0.find_module("digitizer1_energy_window")
+    ener_win.output_filename = f"{simu_name}_energywin_head1.root"
     ener_blur.output_filename = f"{simu_name}_energy_head1.root"
 
     proj1 = digit1.find_module("projection")

@@ -242,12 +242,17 @@ def add_digitizer_lu177_wip(sim, crystal_name, name, spectrum_channel=True):
     keV = gate.g4_units.keV
     # (3/8” Crystal) = Intrinsic Energy Resolution (Tc-99m @ 20 kcps) UFOV FWHM ≤ 6.3%
     eb = digitizer.add_module("DigitizerBlurringActor", f"{name}_blur")
-    eb.blur_attribute = "TotalEnergyDeposit"
-    eb.blur_method = "InverseSquare"
-    eb.blur_resolution = 0.098  # ???
-    eb.blur_reference_value = 208 * keV
+    #eb.blur_attribute = "TotalEnergyDeposit"
+    #eb.blur_method = "InverseSquare"
+    #eb.blur_resolution = 0.112  # ??? 0.098 for 208 keV and 0.112 for 113 keV
+    #eb.blur_reference_value = 113 * keV
     #eb.spacing = [1.1049 * mm, 1.1049 * mm]
-    eb.size = [512, 512]
+    #eb.write_to_disk = True
+    eb.blur_attribute = "TotalEnergyDeposit"
+    eb.blur_method = "Linear"
+    eb.blur_slope = 0.062  # ???
+    eb.blur_resolution = 0.098
+    eb.blur_reference_value = 208 * keV
     eb.write_to_disk = True
 
     # spatial blurring
@@ -315,7 +320,6 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     eb.blur_resolution = 0.089  # ???
     eb.blur_reference_value = 140.57 * keV
     #eb.spacing = [1.1049 * mm, 1.1049 * mm]
-    eb.size = [512, 512]
     eb.write_to_disk = True
 
     # spatial blurring
