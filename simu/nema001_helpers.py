@@ -7,7 +7,7 @@ from spect_helpers import *
 from pathlib import Path
 
 
-def set_nema001_simulation(sim, simu_name):
+def set_nema001_simulation(sim, simu_name, scatter, collimator):
 
     # main options
     # sim.visu = True
@@ -27,7 +27,7 @@ def set_nema001_simulation(sim, simu_name):
 
     # acquisition param
     time = 5 * min
-    activity = 3e6 * Bq / sim.number_of_threads
+    activity = 3e7 * Bq / sim.number_of_threads
     if sim.visu:
         time = 1 * sec
         activity = 100 * Bq
@@ -42,22 +42,26 @@ def set_nema001_simulation(sim, simu_name):
     head, colli, crystal = nm670.add_spect_head(
         sim,
         "spect",
-        collimator_type="lehr",
+        collimator_type= collimator,
         rotation_deg=15,
         crystal_size="5/8",
         debug=sim.visu,
     )
-    nm670.rotate_gantry(head, radius=10 * cm, start_angle_deg=0)
+    #nm670.rotate_gantry(head, radius=0 * cm, start_angle_deg=0)
 
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
-    table.translation = [0, 20.5 * cm, 0]
-    glass_tube = add_phantom_spatial_resolution(sim, "phantom")
+    table.translation = [0, 31.2 * cm, 0]
+    glass_tube = add_phantom_spatial_resolution(sim, "phantom", scatter)
+    if scatter is True:
+        top_plates, bottom_plates = add_PMMA_plates(sim, "PMMA_plates")
+        top_plates.translation = [0, 5.075 * cm, 0]
+        bottom_plates.translation = [0,  -2.575* cm, 0]
 
     # source with AA to speedup
     # setup for 1 source
     container = sim.volume_manager.get_volume(f"phantom_source_container")
-    src = add_source_spatial_resolution(sim, "source", container, "Tc99m", [head.name])
+    src = add_source_spatial_resolution(sim, "source", container, "Lu177") # , [head.name]
     src.activity = activity
 
     # physics
@@ -67,7 +71,7 @@ def set_nema001_simulation(sim, simu_name):
     sim.physics_manager.set_production_cut(crystal.name, "all", 2 * mm)
 
     # digitizer : probably not correct
-    digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
+    digit = add_digitizer_lu177_wip(sim, crystal.name, "digitizer", False)
     proj = digit.find_module("projection")
     proj.output_filename = f"{simu_name}_projection.mhd"
     print(f"Projection size: {proj.size}")
@@ -85,7 +89,7 @@ def set_nema001_simulation(sim, simu_name):
 
     return head, glass_tube, digit_blur
 
-def set_nema001_simulation_2sources(sim, simu_name):
+def set_nema001_simulation_2sources(sim, simu_name, scatter, collimator):
 
     # main options
     # sim.visu = True
@@ -105,7 +109,7 @@ def set_nema001_simulation_2sources(sim, simu_name):
 
     # acquisition param
     time = 5 * min
-    activity = 3e6 * Bq / sim.number_of_threads
+    activity = 3e7 * Bq / sim.number_of_threads
     if sim.visu:
         time = 1 * sec
         activity = 100 * Bq
@@ -120,7 +124,7 @@ def set_nema001_simulation_2sources(sim, simu_name):
     head, colli, crystal = nm670.add_spect_head(
         sim,
         "spect",
-        collimator_type="lehr",
+        collimator_type= collimator,
         rotation_deg=15,
         crystal_size="5/8",
         debug=sim.visu,
@@ -130,13 +134,17 @@ def set_nema001_simulation_2sources(sim, simu_name):
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
     table.translation = [0, 20.5 * cm, 0]
-    glass_tube, glass_tube2 = add_phantom_spatial_resolution_2sources(sim, "phantom")
+    glass_tube, glass_tube2 = add_phantom_spatial_resolution_2sources(sim, "phantom", scatter)
+    if scatter is True:
+        top_plates, bottom_plates = add_PMMA_plates(sim, "PMMA_plates")
+        top_plates.translation = [0, 0 * cm, 0]
+        bottom_plates.translation = [0, 0 * cm, 0]
 
     # source with AA to speedup
     #setup for 2 sources
     container = sim.volume_manager.get_volume(f"phantom_source_container")
     container2 = sim.volume_manager.get_volume(f"phantom_source2_container")
-    src, src2 = add_2sources_spatial_resolution(sim, "source", "source2", container, container2, "Tc99m", [head.name])
+    src, src2 = add_2sources_spatial_resolution(sim, "source", "source2", container, container2, "Lu177") #, [head.name] # to add for acceptance angle
     src.activity = activity
     src2.activity = activity
 

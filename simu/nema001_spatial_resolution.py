@@ -22,9 +22,16 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "--distance", "-d", default=10 * g4_units.cm, help="Distance source-detector in mm"
 )
 @click.option(
-    "--source_config", "-c", default="2_sources", help="Configuration of the source(s) : 1_source or 2_sources if you want simulate the NEMA acquisition of pixel size assessment"
+    "--source_config", "-c", default="1_source", help="Configuration of the source(s) : 1_source or 2_sources if you want simulate the NEMA acquisition of pixel size assessment"
 )
-def go(source_orientation, fwhm_blur, distance, source_config):
+@click.option(
+    "--scatter", "-sc", default=True, help="Set PMMA plates for scattering medium (NEMA NU 1 2023)"
+)
+@click.option(
+    "--collimator", "-col", default="megp", help="Set the collimator type : lehr, megp, hegp or plexi"
+)
+
+def go(source_orientation, fwhm_blur, distance, source_config, scatter, collimator):
 
     # folders
     simu_name = f"nema001_{source_orientation}_blur_{fwhm_blur:.2f}_d_{distance:.2f}"
@@ -35,19 +42,19 @@ def go(source_orientation, fwhm_blur, distance, source_config):
     # main options
     # sim.visu = True
 
-    pos, crystal_distance, psd = compute_plane_position_and_distance_to_crystal("lehr")
+    pos, crystal_distance, psd = nm670.compute_plane_position_and_distance_to_crystal(collimator)
     print("User distance =", distance)
     print("Plane position =", pos)
     print("crystal_distance =", crystal_distance)
     print("psd=", psd)
-    distance = distance - pos
+    distance = distance + pos
     print("final radius =", distance)
 
     # create simulation
     if source_config == "1_source":
-        head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name)
+        head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name, scatter, collimator)
     if source_config == "2_sources":
-        head, glass_tube, glass_tube2, digit_blur = set_nema001_simulation_2sources(sim, simu_name)
+        head, glass_tube, glass_tube2, digit_blur = set_nema001_simulation_2sources(sim, simu_name, scatter, collimator)
 
     # orientation of the linear source
     # Mode 1 source

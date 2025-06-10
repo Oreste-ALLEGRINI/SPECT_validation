@@ -5,6 +5,7 @@ import opengate as gate
 from scipy.spatial.transform import Rotation
 import opengate.contrib.spect.siemens_intevo as intevo
 from opengate.actors.digitizers import Digitizer
+from opengate.sources.utility import get_spectrum
 
 
 def add_digitizer_intevo_lu177(sim, name, crystal_name):
@@ -153,7 +154,7 @@ def create_wood_material(sim):
     )
 
 
-def add_phantom_spatial_resolution(sim, name):
+def add_phantom_spatial_resolution(sim, name, scatter):
     # def
     mm = gate.g4_units.mm
     red = [1, 0.7, 0.7, 0.8]
@@ -182,27 +183,28 @@ def add_phantom_spatial_resolution(sim, name):
     container.color = red
 
     # support cardboard
-    create_wood_material(sim)
-    cardboard = sim.add_volume("Box", f"{name}_cardboard")
-    cardboard.size = [245 * mm, 75 * mm, 125 * mm]
-    cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
-    cardboard.material = "WoodFibers"
-    cardboard.color = gray
+    if scatter is False:
+        create_wood_material(sim)
+        cardboard = sim.add_volume("Box", f"{name}_cardboard")
+        cardboard.size = [245 * mm, 75 * mm, 125 * mm]
+        cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
+        cardboard.material = "WoodFibers"
+        cardboard.color = gray
 
-    # support polystyrene
-    polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
-    polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
-    polystyrene.translation = [
-        0,
-        cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
-        polystyrene.size[2] / 2 - cardboard.size[2] / 2,
-    ]
-    polystyrene.material = "G4_POLYSTYRENE"
-    polystyrene.color = red
+        # support polystyrene
+        polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
+        polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
+        polystyrene.translation = [
+            0,
+            cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
+            polystyrene.size[2] / 2 - cardboard.size[2] / 2,
+        ]
+        polystyrene.material = "G4_POLYSTYRENE"
+        polystyrene.color = red
 
     return glass_tube
 
-def add_phantom_spatial_resolution_2sources(sim, name):
+def add_phantom_spatial_resolution_2sources(sim, name, scatter):
     # def
     mm = gate.g4_units.mm
     red = [1, 0.7, 0.7, 0.8]
@@ -251,27 +253,29 @@ def add_phantom_spatial_resolution_2sources(sim, name):
     container2.color = red
 
     # support cardboard
-    create_wood_material(sim)
-    cardboard = sim.add_volume("Box", f"{name}_cardboard")
-    cardboard.size = [245 * mm, 75 * mm, 125 * mm]
-    cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0]
-    cardboard.material = "WoodFibers"
-    cardboard.color = gray
+    if scatter is False:
+        create_wood_material(sim)
+        cardboard = sim.add_volume("Box", f"{name}_cardboard")
+        cardboard.size = [245 * mm, 75 * mm, 125 * mm]
+        cardboard.translation = [0, -cardboard.size[1] / 2 - glass_tube.rmax, 0] #-50 * mm] # Translation for 2 sources setup in X axis
+        cardboard.material = "WoodFibers"
+        cardboard.color = gray
 
-    # support polystyrene
-    polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
-    polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
-    polystyrene.translation = [
-        0,
-        cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
-        polystyrene.size[2] / 2 - cardboard.size[2] / 2,
-    ]
-    polystyrene.material = "G4_POLYSTYRENE"
-    polystyrene.color = red
+        # support polystyrene
+        polystyrene = sim.add_volume("Box", f"{name}_polystyrene")
+        polystyrene.size = [590 * mm, 50 * mm, 400 * mm]
+        polystyrene.translation = [
+            0,
+            cardboard.translation[1] - cardboard.size[1] / 2 - polystyrene.size[1] / 2,
+            polystyrene.size[2] / 2 - cardboard.size[2] / 2, #- 50 * mm, 
+        ]
+        polystyrene.material = "G4_POLYSTYRENE"
+        polystyrene.color = red
 
     return glass_tube, glass_tube2
 
-def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=None):
+def add_source_spatial_resolution(sim, name, container, rad="Lu177", aa_volumes=None):
+    spectrum = get_spectrum(rad, "gamma")
     source = sim.add_source("GenericSource", name)
     source.attached_to = container.name
     source.particle = "gamma"
@@ -279,14 +283,17 @@ def add_source_spatial_resolution(sim, name, container, rad="lu177", aa_volumes=
     source.position.radius = container.rmax
     source.position.dz = container.dz
     source.direction.type = "iso"
-    gate.sources.base.set_source_rad_energy_spectrum(source, rad)
+    source.energy.type = "spectrum_discrete"
+    source.energy.spectrum_energies = spectrum.energies
+    source.energy.spectrum_weights = spectrum.weights
     if aa_volumes is not None:
         source.direction.acceptance_angle.volumes = aa_volumes
         source.direction.acceptance_angle.intersection_flag = True
         source.direction.acceptance_angle.skip_policy = "SkipEvents"
     return source
 
-def add_2sources_spatial_resolution(sim, name, name2, container, container2, rad="lu177", aa_volumes=None):
+def add_2sources_spatial_resolution(sim, name, name2, container, container2, rad="Lu177", aa_volumes=None):
+    spectrum = get_spectrum(rad, "gamma")
     source = sim.add_source("GenericSource", name)
     source.attached_to = container.name
     source.particle = "gamma"
@@ -294,7 +301,9 @@ def add_2sources_spatial_resolution(sim, name, name2, container, container2, rad
     source.position.radius = container.rmax
     source.position.dz = container.dz
     source.direction.type = "iso"
-    gate.sources.base.set_source_rad_energy_spectrum(source, rad)
+    source.energy.type = "spectrum_discrete"
+    source.energy.spectrum_energies = spectrum.energies
+    source.energy.spectrum_weights = spectrum.weights
     if aa_volumes is not None:
         source.direction.acceptance_angle.volumes = aa_volumes
         source.direction.acceptance_angle.intersection_flag = True
@@ -307,13 +316,51 @@ def add_2sources_spatial_resolution(sim, name, name2, container, container2, rad
     source2.position.radius = container2.rmax
     source2.position.dz = container2.dz
     source2.direction.type = "iso"
-    gate.sources.base.set_source_rad_energy_spectrum(source2, rad)
+    source2.energy.type = "spectrum_discrete"
+    source2.energy.spectrum_energies = spectrum.energies
+    source2.energy.spectrum_weights = spectrum.weights
     if aa_volumes is not None:
         source2.direction.acceptance_angle.volumes = aa_volumes
         source2.direction.acceptance_angle.intersection_flag = True
         source2.direction.acceptance_angle.skip_policy = "SkipEvents"
 
     return source, source2
+
+def add_PMMA_plates(sim, name="PMMA_plates"):
+    """
+    Add PMMA_plates to simulate NEMA spatial
+    """
+
+    # unit
+    mm = gate.g4_units.mm
+    cm = gate.g4_units.cm
+    cm3 = gate.g4_units.cm3
+    deg = gate.g4_units.deg
+    gcm3 = gate.g4_units.g / cm3
+
+    # colors
+    red = [1, 0.7, 0.7, 0.1]
+    white = [1, 1, 1, 0.1]
+
+    # bottom bed
+    bottom_plates = sim.add_volume("Box", f"{name}_bottom")
+    bottom_plates.mother = "world"
+    bottom_plates.size = [35 * cm, 35 * cm, 50 * mm]
+    bottom_plates.material = "G4_PLEXIGLASS"
+    bottom_plates.translation = [0, 0 * cm, -0.25 * cm]
+    bottom_plates.rotation = Rotation.from_euler("x", 90, degrees=True).as_matrix()
+    bottom_plates.color = white
+
+    # top plates
+    top_plates = sim.add_volume("Box", f"{name}_top")
+    top_plates.mother = "world"
+    top_plates.size = [35 * cm, 35 * cm, 100 * mm]
+    top_plates.material = "G4_PLEXIGLASS"
+    top_plates.translation = [0, 0 * cm, 0.25 * cm]
+    top_plates.rotation = Rotation.from_euler("x", 90, degrees=True).as_matrix()
+    top_plates.color = white
+
+    return top_plates, bottom_plates
 
 def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     # create main chain
@@ -351,6 +398,59 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
         {"name": f"spectrum", "min": 3 * keV, "max": 160 * keV},
         {"name": f"scatter", "min": 114 * keV, "max": 126 * keV},
         {"name": f"peak140", "min": 126.45 * keV, "max": 154.55 * keV},
+    ]
+    if not spectrum_channel:
+        channels.pop(0)
+    cc.channels = channels
+
+    # projection
+    proj = digitizer.add_module("DigitizerProjectionActor", f"{name}_projection")
+    channel_names = [c["name"] for c in channels]
+    proj.input_digi_collections = channel_names
+    proj.spacing = [1.1049 * mm, 1.1049 * mm]
+    proj.size = [512, 512]
+    proj.write_to_disk = True
+
+    # end
+    return digitizer
+
+def add_digitizer_lu177_wip(sim, crystal_name, name, spectrum_channel=True):
+    # create main chain
+    mm = gate.g4_units.mm
+    digitizer = Digitizer(sim, crystal_name, name)
+
+    # Singles
+    sc = digitizer.add_module("DigitizerAdderActor", f"{name}_singles")
+    sc.group_volume = None
+    sc.policy = "EnergyWinnerPosition"
+
+    # detection efficiency
+    # ea = digitizer.add_module("DigitizerEfficiencyActor", f"{name}_eff")
+    # ea.efficiency = 0.86481  # FAKE
+
+    # energy blurring
+    keV = gate.g4_units.keV
+    # (3/8” Crystal) = Intrinsic Energy Resolution (Tc-99m @ 20 kcps) UFOV FWHM ≤ 6.3%
+    eb = digitizer.add_module("DigitizerBlurringActor", f"{name}_blur")
+    eb.blur_attribute = "TotalEnergyDeposit"
+    eb.blur_method = "Linear"
+    eb.blur_resolution = 0.098  # ???
+    eb.blur_reference_value = 208 * keV
+    eb.blur_slope = 0.052
+
+    # spatial blurring
+    sb = digitizer.add_module("DigitizerSpatialBlurringActor", f"{name}_sp_blur")
+    sb.attached_to = crystal_name
+    sb.blur_attribute = "PostPosition"
+    sb.blur_fwhm =  10.6 * mm  # ???
+    sb.keep_in_solid_limits = True
+
+    # energy windows (Energy range. 35-588 keV)
+    cc = digitizer.add_module("DigitizerEnergyWindowsActor", f"{name}_energy_window")
+    channels = [
+        {"name": f"spectrum", "min": 3 * keV, "max": 250 * keV},
+        {"name": f"scatter", "min": 169.1 * keV, "max": 186.9 * keV},
+        {"name": f"peak140", "min": 187.2 * keV, "max": 228.8 * keV},
     ]
     if not spectrum_channel:
         channels.pop(0)
