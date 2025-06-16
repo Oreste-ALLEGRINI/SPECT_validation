@@ -7,7 +7,7 @@ from spect_helpers import *
 from pathlib import Path
 
 
-def set_nema001_simulation(sim, simu_name, scatter, collimator):
+def set_nema001_simulation(sim, simu_name, scatter, collimator, rad):
 
     # main options
     # sim.visu = True
@@ -61,7 +61,7 @@ def set_nema001_simulation(sim, simu_name, scatter, collimator):
     # source with AA to speedup
     # setup for 1 source
     container = sim.volume_manager.get_volume(f"phantom_source_container")
-    src = add_source_spatial_resolution(sim, "source", container, "Lu177") # , [head.name]
+    src = add_source_spatial_resolution(sim, "source", container, rad) # , [head.name]
     src.activity = activity
 
     # physics
@@ -71,7 +71,13 @@ def set_nema001_simulation(sim, simu_name, scatter, collimator):
     sim.physics_manager.set_production_cut(crystal.name, "all", 2 * mm)
 
     # digitizer : probably not correct
-    digit = add_digitizer_lu177_wip(sim, crystal.name, "digitizer", False)
+    if rad == "Lu177":
+        digit = add_digitizer_lu177_wip(sim, crystal.name, "digitizer", False)
+    elif rad == "Tc99m":
+        digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
+    else:
+        digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False) # to be set for other radionuclide
+    
     proj = digit.find_module("projection")
     proj.output_filename = f"{simu_name}_projection.mhd"
     print(f"Projection size: {proj.size}")
@@ -89,7 +95,7 @@ def set_nema001_simulation(sim, simu_name, scatter, collimator):
 
     return head, glass_tube, digit_blur
 
-def set_nema001_simulation_2sources(sim, simu_name, scatter, collimator):
+def set_nema001_simulation_2sources(sim, simu_name, scatter, collimator, rad):
 
     # main options
     # sim.visu = True
@@ -144,7 +150,7 @@ def set_nema001_simulation_2sources(sim, simu_name, scatter, collimator):
     #setup for 2 sources
     container = sim.volume_manager.get_volume(f"phantom_source_container")
     container2 = sim.volume_manager.get_volume(f"phantom_source2_container")
-    src, src2 = add_2sources_spatial_resolution(sim, "source", "source2", container, container2, "Lu177") #, [head.name] # to add for acceptance angle
+    src, src2 = add_2sources_spatial_resolution(sim, "source", "source2", container, container2, rad) #, [head.name] # to add for acceptance angle
     src.activity = activity
     src2.activity = activity
 
@@ -155,7 +161,13 @@ def set_nema001_simulation_2sources(sim, simu_name, scatter, collimator):
     sim.physics_manager.set_production_cut(crystal.name, "all", 2 * mm)
 
     # digitizer : probably not correct
-    digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
+    if rad == "Lu177":
+        digit = add_digitizer_lu177_wip(sim, crystal.name, "digitizer", False)
+    elif rad == "Tc99m":
+        digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
+    else:
+        digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False) # to be set for other radionuclide
+        
     proj = digit.find_module("projection")
     proj.output_filename = f"{simu_name}_projection.mhd"
     print(f"Projection size: {proj.size}")

@@ -19,19 +19,22 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 )
 @click.option("--fwhm_blur", default=4.6, help="FWHM spatial blur in digitizer")
 @click.option(
-    "--distance", "-d", default=10 * g4_units.cm, help="Distance source-detector in mm"
+    "--distance", "-d", default=0 * g4_units.cm, help="Distance source-detector in mm"
 )
 @click.option(
     "--source_config", "-c", default="1_source", help="Configuration of the source(s) : 1_source or 2_sources if you want simulate the NEMA acquisition of pixel size assessment"
 )
 @click.option(
-    "--scatter", "-sc", default=True, help="Set PMMA plates for scattering medium (NEMA NU 1 2023)"
+    "--scatter", "-sc", default=False, help="Set PMMA plates for scattering medium (NEMA NU 1 2023)"
 )
 @click.option(
     "--collimator", "-col", default="megp", help="Set the collimator type : lehr, megp, hegp or plexi"
 )
+@click.option(
+    "--radionuclide", "-rad", default="Tc99m", help="Set the radionuclide type : Tc99m, Lu177 or other radionuclide contained in ICRP 107 database"
+)
 
-def go(source_orientation, fwhm_blur, distance, source_config, scatter, collimator):
+def go(source_orientation, fwhm_blur, distance, source_config, scatter, collimator, radionuclide):
 
     # folders
     simu_name = f"nema001_{source_orientation}_blur_{fwhm_blur:.2f}_d_{distance:.2f}"
@@ -52,9 +55,9 @@ def go(source_orientation, fwhm_blur, distance, source_config, scatter, collimat
 
     # create simulation
     if source_config == "1_source":
-        head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name, scatter, collimator)
+        head, glass_tube, digit_blur = set_nema001_simulation(sim, simu_name, scatter, collimator, radionuclide)
     if source_config == "2_sources":
-        head, glass_tube, glass_tube2, digit_blur = set_nema001_simulation_2sources(sim, simu_name, scatter, collimator)
+        head, glass_tube, glass_tube2, digit_blur = set_nema001_simulation_2sources(sim, simu_name, scatter, collimator, radionuclide)
 
     # orientation of the linear source
     # Mode 1 source
