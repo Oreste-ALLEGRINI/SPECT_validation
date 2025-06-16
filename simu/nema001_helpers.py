@@ -75,7 +75,12 @@ def set_nema001_simulation(sim, simu_name, distance, collimator, rad):
     sim.physics_manager.set_production_cut(crystal.name, "all", 2 * mm)
 
     # digitizer : probably not correct
-    digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
+    if rad == "Tc99m":
+        digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False)
+    elif rad == "Lu177":
+        digit = add_digitizer_lu177_wip(sim, crystal.name, "digitizer", False)
+    else:
+        digit = add_digitizer_tc99m_wip(sim, crystal.name, "digitizer", False) # to be set for other radionuclide
     proj = digit.find_module("projection")
     proj.output_filename = f"{simu_name}_projection.mhd"
     print(f"Projection size: {proj.size}")
