@@ -175,7 +175,7 @@ def add_iec_phantom(sim, aa_volumes, conc_a, name_supp):
             source.direction.acceptance_angle.volumes = aa_volumes
             source.direction.acceptance_angle.intersection_flag = True
             source.direction.acceptance_angle.skip_policy = "SkipEvents"
-    bg_source = gate_iec.add_background_source(sim, iec_phantom.name,"source",conc_a, verbose=True)
+    bg_source = gate_iec.add_background_source(sim, iec_phantom.name,"source_bckg",conc_a, verbose=True)
     set_iec_sources(bg_source, rad ="Tc99m")
     if aa_volumes is not None:
             bg_source.direction.acceptance_angle.volumes = aa_volumes

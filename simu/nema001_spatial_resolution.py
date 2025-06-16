@@ -4,9 +4,6 @@
 import opengate.contrib.spect.ge_discovery_nm670 as nm670
 from opengate import g4_units
 from nema001_helpers import set_nema001_simulation
-from opengate.contrib.spect.siemens_intevo import (
-    compute_plane_position_and_distance_to_crystal,
-)
 from spect_helpers import *
 import click
 
@@ -21,7 +18,10 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.option(
     "--distance", "-d", default=22.5 * g4_units.cm, help="Distance source-detector in mm"
 )
-def go(source_orientation, fwhm_blur, distance):
+@click.option(
+    "--collimator", "-c", default="lehr", help="Set the collimator type : lehr, megp, hegp or plexi"
+)
+def go(source_orientation, fwhm_blur, distance, collimator):
     # folders
     simu_name = f"nema001_{source_orientation}_blur_{fwhm_blur:.2f}_d_{distance:.2f}"
 
@@ -31,16 +31,16 @@ def go(source_orientation, fwhm_blur, distance):
     # main options
     # sim.visu = True
 
-    pos, crystal_distance, psd = compute_plane_position_and_distance_to_crystal("lehr")
+    pos, crystal_distance, psd = nm670.compute_plane_position_and_distance_to_crystal(collimator)
     print("User distance =", distance)
     print("Plane position =", pos)
     print("crystal_distance =", crystal_distance)
     print("psd=", psd)
-    distance = distance - pos
+    distance = distance + pos
     print("final radius =", distance)
 
     # create simulation
-    head, iec_phantom, digit_blur = set_nema001_simulation(sim, simu_name, distance)
+    head, iec_phantom, digit_blur = set_nema001_simulation(sim, simu_name, distance, collimator)
 
     # orientation of the linear source
     if source_orientation == "X":

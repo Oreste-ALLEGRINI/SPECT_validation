@@ -7,7 +7,7 @@ from spect_helpers import *
 from pathlib import Path
 
 
-def set_nema001_simulation(sim, simu_name, distance):
+def set_nema001_simulation(sim, simu_name, distance, collimator):
 
     # main options
     # sim.visu = True
@@ -32,7 +32,7 @@ def set_nema001_simulation(sim, simu_name, distance):
     # acquisition param
     time = 20 * min
     activity = 3e6 * Bq / sim.number_of_threads
-    conc_a = 100000 * BqmL / sim.number_of_threads
+    conc_a = 10000 * BqmL / sim.number_of_threads
     if sim.visu:
         time = 10 * sec
         activity = 5 * Bq
@@ -50,7 +50,7 @@ def set_nema001_simulation(sim, simu_name, distance):
     head, colli, crystal = nm670.add_spect_head(
         sim,
         "spect",
-        collimator_type="lehr",
+        collimator_type=collimator,
         rotation_deg=15,
         crystal_size="5/8",
         debug=sim.visu,
@@ -60,7 +60,7 @@ def set_nema001_simulation(sim, simu_name, distance):
 
     # CREATE phantom and source with AA to speedup + (fake) table
     table = add_fake_table(sim, "table")
-    table.translation = [0, 22.2 * cm, 0]
+    table.translation = [0, 30.2 * cm, 0]
 
     iec_phantom = add_iec_phantom(sim, aa_volumes= [head.name], conc_a=conc_a, name_supp= "phantom")
     spacing = (2.2098 * mm, 2.2098 * mm, 2.2098 * mm)
