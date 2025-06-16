@@ -13,7 +13,7 @@ def set_nema001_simulation(sim, simu_name, scatter, collimator, rad):
     # sim.visu = True
     sim.visu_type = "vrml_file_only"
     sim.visu_filename = "spatial_resolution.wrl"
-    sim.number_of_threads = 32
+    sim.number_of_threads = 30
     sim.progress_bar = True
     sim.output_dir = Path("planar_spatial_res") / simu_name
 
@@ -27,7 +27,7 @@ def set_nema001_simulation(sim, simu_name, scatter, collimator, rad):
 
     # acquisition param
     time = 5 * min
-    activity = 3e7 * Bq / sim.number_of_threads
+    activity = 3e6 * Bq / sim.number_of_threads
     if sim.visu:
         time = 1 * sec
         activity = 100 * Bq
@@ -51,12 +51,13 @@ def set_nema001_simulation(sim, simu_name, scatter, collimator, rad):
 
     # phantom + (fake) table
     table = add_fake_table(sim, "table")
-    table.translation = [0, 31.2 * cm, 0]
+    table.translation = [0, 20.65 * cm, 0]
     glass_tube = add_phantom_spatial_resolution(sim, "phantom", scatter)
     if scatter is True:
         top_plates, bottom_plates = add_PMMA_plates(sim, "PMMA_plates")
         top_plates.translation = [0, 5.075 * cm, 0]
         bottom_plates.translation = [0,  -2.575* cm, 0]
+        table.translation = [0, 31.2 * cm, 0]
 
     # source with AA to speedup
     # setup for 1 source
