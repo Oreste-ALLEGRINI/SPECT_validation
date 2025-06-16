@@ -151,7 +151,7 @@ def rotate_gantry_helpers(
 
 
 
-def add_iec_phantom(sim, aa_volumes, conc_a, name_supp):
+def add_iec_phantom(sim, aa_volumes, conc_a, rad, name_supp):
     # rotation 180 around X to be like in the iec 61217 coordinate system
     mm = gate.g4_units.mm
     iec_phantom = gate_iec.add_iec_phantom(sim, sphere_starting_angle=0)
@@ -169,14 +169,14 @@ def add_iec_phantom(sim, aa_volumes, conc_a, name_supp):
     activity_Bq_mL = [0 * conc_a, 8 * conc_a, 8 * conc_a, 8 * conc_a, 8 * conc_a, 0 * conc_a ]
     sources = gate_iec.add_spheres_sources(sim, iec_phantom.name, "sources", "all", activity_Bq_mL, spheres_diam = [37, 13, 17, 22, 28, 28], verbose=True)
     for source in sources:
-        set_iec_sources(source, rad = "Tc99m")
-        gate.sources.utility.set_source_energy_spectrum(source, rad = "Tc99m")
+        set_iec_sources(source, rad = rad)
+        gate.sources.utility.set_source_energy_spectrum(source, rad = rad)
         if aa_volumes is not None:
             source.direction.acceptance_angle.volumes = aa_volumes
             source.direction.acceptance_angle.intersection_flag = True
             source.direction.acceptance_angle.skip_policy = "SkipEvents"
     bg_source = gate_iec.add_background_source(sim, iec_phantom.name,"source_bckg",conc_a, verbose=True)
-    set_iec_sources(bg_source, rad ="Tc99m")
+    set_iec_sources(bg_source, rad =rad)
     if aa_volumes is not None:
             bg_source.direction.acceptance_angle.volumes = aa_volumes
             bg_source.direction.acceptance_angle.intersection_flag = True
@@ -247,6 +247,59 @@ def add_digitizer_tc99m_wip(sim, crystal_name, name, spectrum_channel=True):
     proj.input_digi_collections = channel_names
     proj.spacing = [2.2098 * mm, 2.2098 * mm]
     proj.size = [256, 256]
+    proj.write_to_disk = True
+
+    # end
+    return digitizer
+
+def add_digitizer_lu177_wip(sim, crystal_name, name, spectrum_channel=True):
+    # create main chain
+    mm = gate.g4_units.mm
+    digitizer = Digitizer(sim, crystal_name, name)
+
+    # Singles
+    sc = digitizer.add_module("DigitizerAdderActor", f"{name}_singles")
+    sc.group_volume = None
+    sc.policy = "EnergyWinnerPosition"
+
+    # detection efficiency
+    # ea = digitizer.add_module("DigitizerEfficiencyActor", f"{name}_eff")
+    # ea.efficiency = 0.86481  # FAKE
+
+    # energy blurring
+    keV = gate.g4_units.keV
+    # (3/8” Crystal) = Intrinsic Energy Resolution (Tc-99m @ 20 kcps) UFOV FWHM ≤ 6.3%
+    eb = digitizer.add_module("DigitizerBlurringActor", f"{name}_blur")
+    eb.blur_attribute = "TotalEnergyDeposit"
+    eb.blur_method = "Linear"
+    eb.blur_resolution = 0.098  # ???
+    eb.blur_reference_value = 208 * keV
+    eb.blur_slope = 0.052
+
+    # spatial blurring
+    sb = digitizer.add_module("DigitizerSpatialBlurringActor", f"{name}_sp_blur")
+    sb.attached_to = crystal_name
+    sb.blur_attribute = "PostPosition"
+    sb.blur_fwhm =  10.6 * mm  # ???
+    sb.keep_in_solid_limits = True
+
+    # energy windows (Energy range. 35-588 keV)
+    cc = digitizer.add_module("DigitizerEnergyWindowsActor", f"{name}_energy_window")
+    channels = [
+        {"name": f"spectrum", "min": 3 * keV, "max": 250 * keV},
+        {"name": f"scatter", "min": 169.1 * keV, "max": 186.9 * keV},
+        {"name": f"peak140", "min": 187.2 * keV, "max": 228.8 * keV},
+    ]
+    if not spectrum_channel:
+        channels.pop(0)
+    cc.channels = channels
+
+    # projection
+    proj = digitizer.add_module("DigitizerProjectionActor", f"{name}_projection")
+    channel_names = [c["name"] for c in channels]
+    proj.input_digi_collections = channel_names
+    proj.spacing = [1.1049 * mm, 1.1049 * mm]
+    proj.size = [512, 512]
     proj.write_to_disk = True
 
     # end

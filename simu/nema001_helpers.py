@@ -7,7 +7,7 @@ from spect_helpers import *
 from pathlib import Path
 
 
-def set_nema001_simulation(sim, simu_name, distance, collimator):
+def set_nema001_simulation(sim, simu_name, distance, collimator, rad):
 
     # main options
     # sim.visu = True
@@ -62,7 +62,7 @@ def set_nema001_simulation(sim, simu_name, distance, collimator):
     table = add_fake_table(sim, "table")
     table.translation = [0, 30.2 * cm, 0]
 
-    iec_phantom = add_iec_phantom(sim, aa_volumes= [head.name], conc_a=conc_a, name_supp= "phantom")
+    iec_phantom = add_iec_phantom(sim, aa_volumes= [head.name], conc_a=conc_a, rad=rad, name_supp= "phantom")
     spacing = (2.2098 * mm, 2.2098 * mm, 2.2098 * mm)
     labels, image = voxelize_geometry(sim, extent=iec_phantom, spacing=spacing)
     filenames = write_voxelized_geometry(sim, labels, image, Path("output_iec") / "test_iec_vox.mhd")

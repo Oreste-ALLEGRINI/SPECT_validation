@@ -21,6 +21,9 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 @click.option(
     "--collimator", "-c", default="lehr", help="Set the collimator type : lehr, megp, hegp or plexi"
 )
+@click.option(
+    "--radionuclide", "-rad", default="Tc99m", help="Set the radionuclide type : Tc99m, Lu177 or other radionuclide in ICRP 107 database"
+)
 def go(source_orientation, fwhm_blur, distance, collimator):
     # folders
     simu_name = f"nema001_{source_orientation}_blur_{fwhm_blur:.2f}_d_{distance:.2f}"
