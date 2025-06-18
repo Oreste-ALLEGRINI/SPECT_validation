@@ -28,13 +28,16 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     "--scatter", "-sc", default=False, help="Set PMMA plates for scattering medium (NEMA NU 1 2023)"
 )
 @click.option(
-    "--collimator", "-col", default="megp", help="Set the collimator type : lehr, megp, hegp or plexi"
+    "--collimator", "-col", default="lehr", help="Set the collimator type : lehr, megp, hegp or plexi"
 )
 @click.option(
     "--radionuclide", "-rad", default="Tc99m", help="Set the radionuclide type : Tc99m, Lu177 or other radionuclide contained in ICRP 107 database"
 )
 
 def go(source_orientation, fwhm_blur, distance, source_config, scatter, collimator, radionuclide):
+    run_simulation(source_orientation, fwhm_blur, distance, source_config, scatter, collimator, radionuclide)
+
+def run_simulation(source_orientation, fwhm_blur, distance, source_config, scatter, collimator, radionuclide):
 
     # folders
     simu_name = f"nema001_{source_orientation}_blur_{fwhm_blur:.2f}_d_{distance:.2f}"

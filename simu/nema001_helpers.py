@@ -27,7 +27,7 @@ def set_nema001_simulation(sim, simu_name, scatter, collimator, rad):
 
     # acquisition param
     time = 5 * min
-    activity = 3e6 * Bq / sim.number_of_threads
+    activity = 3e7 * Bq / sim.number_of_threads
     if sim.visu:
         time = 1 * sec
         activity = 100 * Bq
@@ -102,7 +102,7 @@ def set_nema001_simulation_2sources(sim, simu_name, scatter, collimator, rad):
     # sim.visu = True
     sim.visu_type = "vrml_file_only"
     sim.visu_filename = "spatial_resolution.wrl"
-    sim.number_of_threads = 32
+    sim.number_of_threads = 30
     sim.progress_bar = True
     sim.output_dir = Path("planar_spatial_res") / simu_name
 
@@ -116,7 +116,7 @@ def set_nema001_simulation_2sources(sim, simu_name, scatter, collimator, rad):
 
     # acquisition param
     time = 5 * min
-    activity = 3e7 * Bq / sim.number_of_threads
+    activity = 3e6 * Bq / sim.number_of_threads
     if sim.visu:
         time = 1 * sec
         activity = 100 * Bq
